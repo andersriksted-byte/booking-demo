@@ -72,6 +72,9 @@ h2{font-size:24px;line-height:1.2;margin:0 0 6px}
 .olist .grip{color:var(--mute);letter-spacing:-2px;font-size:14px}.olist .on{color:var(--mute);font-size:14px;width:2em;text-align:right;flex:none}
 .olist .onm{flex:1;font-weight:600;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .olist .ar{min-height:36px;width:40px;padding:0;flex:none}
+.ghbox{border:1.5px solid var(--accent);border-radius:14px;padding:14px 16px;margin:18px 0 0;font-size:15px}.ghbox summary{cursor:pointer;font-weight:600;min-height:32px;display:flex;align-items:center}.ghbox .row{display:grid;grid-template-columns:150px minmax(0,1fr);gap:10px;align-items:center;margin-bottom:8px}
+.ok{color:#1d7a4a;font-weight:600}.warn{color:#b54708;font-weight:600}
+.pubnote{position:fixed;left:50%;bottom:20px;transform:translate(-50%,20px);background:var(--petrol);color:#fff;padding:12px 18px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;font-weight:600;max-width:92vw}.pubnote.show{opacity:1;transform:translate(-50%,0)}
 .hint{margin:4px 0 10px;font-size:14px;color:var(--mute)}
 .paste{cursor:pointer}.paste:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 dialog.drop .cfg{border-color:var(--accent);border-style:dashed}
@@ -227,17 +230,28 @@ textarea{min-height:120px;font-family:ui-monospace,monospace;font-size:13px}
     <p class="sub">Vælg et selskab i listen og indsæt bookinglinket for hver kombination af leasingselskab og bookingtype, og upload evt. selskabets logo (PNG, JPG eller SVG). Felter uden link vises som "link mangler" i flowet. Ændringer gemmes i denne browser.</p>
     <div id="cfgList"></div>
     <button class="btn" type="button" id="addCo">+ Tilføj leasingselskab</button>
-    <details style="margin-top:20px">
-      <summary style="cursor:pointer;font-weight:600">Del opsætningen med kunderne (GitHub)</summary>
-      <p class="sub" style="margin-top:10px" id="srcInfo"></p>
-      <ol class="sub" style="padding-left:20px;margin-top:0">
-        <li>Tryk <b>Gem og luk</b>, åbn Opsætning igen og tryk <b>Hent opsætningsfil</b>. Du får filen <code>opsaetning.json</code>.</li>
-        <li>På GitHub: åbn dit repository, vælg <b>Add file → Upload files</b>, træk filen ind og tryk <b>Commit changes</b>. Findes filen i forvejen, bliver den erstattet.</li>
-        <li>Efter 1–2 minutter ser alle, der åbner siden, dine logoer, links, markeder og rækkefølge.</li>
-      </ol>
-      <div style="display:flex;gap:10px;margin:0 0 14px;flex-wrap:wrap"><button class="btn sm pri" type="button" id="dlJson">Hent opsætningsfil</button></div>
-      
-    </details>
+    <div class="ghbox" id="ghbox">
+      <b>Udgiv automatisk til alle</b>
+      <p class="sub" style="margin:6px 0 10px" id="ghState"></p>
+      <p class="sub" style="margin:0 0 10px" id="srcInfo"></p>
+      <details id="ghSetup"><summary>Forbind til GitHub (gøres én gang pr. computer)</summary>
+        <ol class="sub" style="padding-left:20px;margin:10px 0">
+          <li>Åbn <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a> (du skal være logget ind).</li>
+          <li>Giv den et navn, fx <i>Booking-opsætning</i>, og vælg en udløbsdato.</li>
+          <li>Under <b>Repository access</b>: vælg <b>Only select repositories</b> og vælg <b>booking-demo</b>.</li>
+          <li>Under <b>Permissions → Repository permissions</b>: sæt <b>Contents</b> til <b>Read and write</b>.</li>
+          <li>Tryk <b>Generate token</b>, kopiér koden og sæt den ind herunder.</li>
+        </ol>
+        <div class="row"><label for="ghRepo">Repository</label><input id="ghRepo" autocomplete="off" spellcheck="false"></div>
+        <div class="row"><label for="ghToken">Adgangskode (token)</label><input id="ghToken" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…"></div>
+        <p class="hint">Koden gemmes kun i denne browser og bliver aldrig lagt i siden eller på GitHub.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn sm pri" type="button" id="ghConnect">Forbind og test</button><button class="btn sm" type="button" id="ghForget">Glem forbindelse</button></div>
+      </details>
+      <details style="margin-top:8px"><summary>Udgiv manuelt i stedet</summary>
+        <p class="sub" style="margin:8px 0">Tryk <b>Hent opsætningsfil</b> og upload <code>opsaetning.json</code> til dit repository med <b>Add file → Upload files</b>.</p>
+        <button class="btn sm" type="button" id="dlJson">Hent opsætningsfil</button>
+      </details>
+    </div>
   </div>
   <div class="df">
     <div class="l"></div>
@@ -551,20 +565,66 @@ list.addEventListener("input", e => {
 list.addEventListener("click", e => { const d = e.target.closest("[data-del]"); if(d){ draft.splice(+d.dataset.del,1); renderCfg(); }
   const r = e.target.closest("[data-rmlogo]"); if(r){ delete draft[+r.dataset.rmlogo].logo; renderCfg(); } });
 
-document.getElementById("openCfg").addEventListener("click", () => { draft = clone(companies); cs = state.co ?? 0; orderOpen = false; renderCfg();
+document.getElementById("openCfg").addEventListener("click", () => { draft = clone(companies); cs = state.co ?? 0; orderOpen = false; renderCfg(); ghStateText();
   const fmt = t => new Date(t).toLocaleString("da-DK",{dateStyle:"short",timeStyle:"short"});
   document.getElementById("srcInfo").textContent = source==="fil" ? `Siden viser lige nu opsætningsfilen fra GitHub (opdateret ${fileUpdated?fmt(fileUpdated):"ukendt"}). Det er den, kunderne ser.`
-    : source==="lokal" ? `Siden viser dine lokale ændringer fra denne browser (gemt ${localSavedAt>1?fmt(localSavedAt):"tidligere"}). Kunderne ser dem først, når du uploader en ny opsætningsfil.`
+    : source==="lokal" ? `Siden viser dine lokale ændringer fra denne browser (gemt ${localSavedAt>1?fmt(localSavedAt):"tidligere"}). ${ghOn()?"Tryk Gem og luk for at udgive dem til alle.":"Kunderne ser dem først, når du forbinder til GitHub og trykker Gem og luk."}`
     : "Der er ingen opsætningsfil på GitHub endnu. Kunderne ser kun selskabernes navne uden logoer og links."; try{ dlg.showModal(); }catch(err){ dlg.setAttribute("open",""); } });
 document.getElementById("closeCfg").addEventListener("click", () => dlg.close());
 document.getElementById("addCo").addEventListener("click", () => { draft.push({name:"Nyt leasingselskab", links:{pre:"",insp:"",drop:""}}); cs = draft.length - 1; renderCfg(); list.querySelector(".cfg input")?.select(); });
-document.getElementById("save").addEventListener("click", () => {
+/* ===== GitHub-udgivelse ===== */
+const GHKEY = "booking-demo-gh";
+const guessRepo = () => { const o = location.hostname.endsWith(".github.io") ? location.hostname.split(".")[0] : "andersriksted-byte"; const r = location.pathname.split("/").filter(Boolean)[0] || "booking-demo"; return o + "/" + r; };
+let gh = {repo:guessRepo(), token:""};
+try{ const g = JSON.parse(localStorage.getItem(GHKEY)||"null"); if(g && g.token) gh = {repo:String(g.repo||guessRepo()), token:String(g.token)}; }catch(e){}
+const ghOn = () => !!gh.token;
+function ghStateText(){
+  const el = document.getElementById("ghState"); if(!el) return;
+  el.innerHTML = ghOn() ? `<span class="ok">Forbundet til ${esc(gh.repo)}.</span> Når du trykker <b>Gem og luk</b>, bliver ændringerne automatisk udgivet til alle – de kan ses efter 1–2 minutter.`
+    : `<span class="warn">Ikke forbundet.</span> Dine ændringer gemmes kun i denne browser, indtil du forbinder til GitHub herunder.`;
+  document.getElementById("ghRepo").value = gh.repo; document.getElementById("ghToken").value = gh.token ? "••••••••••" : "";
+  document.getElementById("ghSetup").open = !ghOn();
+}
+const ghHeaders = () => ({"Authorization":"Bearer " + gh.token, "Accept":"application/vnd.github+json", "X-GitHub-Api-Version":"2022-11-28"});
+const ghUrl = () => `https://api.github.com/repos/${gh.repo.split("/").map(encodeURIComponent).join("/")}/contents/${CONFIG_FILE}`;
+function b64utf8(str){ const bytes = new TextEncoder().encode(str); let bin = ""; for(let i=0;i<bytes.length;i+=0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i,i+0x8000)); return btoa(bin); }
+async function ghPublish(list, when){
+  let sha;
+  const g = await fetch(ghUrl() + "?ref=main&t=" + Date.now(), {headers:ghHeaders(), cache:"no-store"});
+  if(g.status === 200){ sha = (await g.json()).sha; } else if(g.status !== 404){ throw new Error(g.status===401||g.status===403 ? "Adgangskoden virker ikke eller mangler rettigheden Contents: Read and write" : "GitHub svarede " + g.status); }
+  const body = {message:"Opdater opsætning (logoer og links)", content:b64utf8(JSON.stringify({updated:new Date(when).toISOString(), companies:list}, null, 2)), branch:"main", ...(sha?{sha}:{})};
+  const r = await fetch(ghUrl(), {method:"PUT", headers:{...ghHeaders(), "Content-Type":"application/json"}, body:JSON.stringify(body)});
+  if(!r.ok){ throw new Error(r.status===401||r.status===403 ? "Adgangskoden virker ikke eller mangler rettigheden Contents: Read and write" : r.status===413 ? "Opsætningen er for stor – prøv mindre logoer" : "GitHub svarede " + r.status); }
+}
+document.getElementById("ghConnect").addEventListener("click", async () => {
+  const repo = document.getElementById("ghRepo").value.trim(), tokIn = document.getElementById("ghToken").value.trim();
+  const token = tokIn.startsWith("•") ? gh.token : tokIn;
+  if(!/^[\w.-]+\/[\w.-]+$/.test(repo)){ flash("Skriv repository som brugernavn/navn, fx andersriksted-byte/booking-demo"); return; }
+  if(!token){ flash("Sæt din adgangskode (token) ind først"); return; }
+  flash("Tester forbindelsen …");
+  try{ const r = await fetch(`https://api.github.com/repos/${repo}`, {headers:{"Authorization":"Bearer " + token, "Accept":"application/vnd.github+json"}});
+    if(!r.ok) throw new Error(r.status===404 ? "Repository blev ikke fundet – tjek navnet og at koden har adgang til det" : "Adgangskoden virker ikke");
+    const info = await r.json(); if(info.permissions && !info.permissions.push) throw new Error("Koden må kun læse – sæt Contents til Read and write");
+    gh = {repo, token}; try{ localStorage.setItem(GHKEY, JSON.stringify(gh)); }catch(e){}
+    ghStateText(); flash("Forbundet – tryk Gem og luk for at udgive");
+  }catch(e){ flash(e.message || "Kunne ikke forbinde"); }
+});
+document.getElementById("ghForget").addEventListener("click", () => { gh = {repo:guessRepo(), token:""}; try{ localStorage.removeItem(GHKEY); }catch(e){} ghStateText(); flash("Forbindelsen er glemt på denne computer"); });
+
+let saving = false;
+document.getElementById("save").addEventListener("click", async () => {
+  if(saving) return;
   const bad = draft.flatMap(c => Object.entries(c.links||{}).filter(([k,v]) => v && !okUrl(v)).map(([k]) => `${c.name}: ${TYPES[k].title}`));
   if(bad.length){ flash("Links skal starte med https:// – tjek " + bad[0]); return; }
   companies = clone(draft).filter(c => String(c.name).trim());
-  const ok = store(companies); state = {step:1, co:null}; render(); if(ok){ dlg.close(); return; }
-  flash(ok ? "Gemt" : "Vises nu, men kunne ikke gemmes permanent – prøv mindre logofiler");
+  const ok = store(companies); state = {step:1, co:null}; render();
+  if(!ghOn()){ if(ok){ dlg.close(); return; } flash("Vises nu, men kunne ikke gemmes – prøv mindre logofiler"); return; }
+  const btn = document.getElementById("save"); saving = true; btn.disabled = true; btn.textContent = "Udgiver …";
+  try{ await ghPublish(companies, localSavedAt || Date.now()); source = "lokal"; dlg.close(); showNotice("Udgivet til alle – ændringerne kan ses om 1–2 minutter."); }
+  catch(e){ flash("Gemt her, men ikke udgivet: " + (e.message||"ukendt fejl")); }
+  finally{ saving = false; btn.disabled = false; btn.textContent = "Gem og luk"; }
 });
+function showNotice(t){ let n = document.getElementById("pubNote"); if(!n){ n = document.createElement("div"); n.id = "pubNote"; n.className = "pubnote"; n.setAttribute("role","status"); document.body.appendChild(n); } n.textContent = t; n.classList.add("show"); clearTimeout(showNotice.t); showNotice.t = setTimeout(()=>n.classList.remove("show"), 5000); }
 function exportText(){ return JSON.stringify({updated:new Date().toISOString(), companies:draft}, null, 2); }
 document.getElementById("dlJson").addEventListener("click", () => {
   try{ const blob = new Blob([exportText()], {type:"application/json"}), a = document.createElement("a");
