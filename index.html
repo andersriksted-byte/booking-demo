@@ -81,6 +81,8 @@ body.wide main{max-width:1440px;padding-inline:clamp(8px,2vw,24px)}
 body.wide .panel{padding:clamp(12px,1.6vw,20px)}
 body.wide .frame{height:max(853px,calc((100vh - 220px) * 4 / 3))}
 @media(min-width:900px){body.wide .frame iframe{min-width:1120px}}
+.tgl{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer}.tgl input{width:18px;height:18px;margin:0;accent-color:var(--petrol);flex:none}.tgl small{font-weight:500;color:var(--mute)}
+input:disabled{opacity:.5}
 .hint{margin:4px 0 10px;font-size:14px;color:var(--mute)}
 .paste{cursor:pointer}.paste:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 dialog.drop .cfg{border-color:var(--accent);border-style:dashed}
@@ -92,7 +94,7 @@ dialog.drop .cfg{border-color:var(--accent);border-style:dashed}
 .chosen b{font-weight:700}
 .link{all:unset;cursor:pointer;color:var(--petrol2);font-weight:600;text-decoration:underline;text-underline-offset:3px;margin-left:auto}
 .grp{font-size:14px;font-weight:600;color:var(--mute);margin:22px 0 10px}
-.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:12px}
 .opts.one{grid-template-columns:minmax(0,1fr)}
 .opt{display:flex;gap:14px;align-items:flex-start;text-decoration:none;color:inherit;border:1.5px solid var(--line);border-radius:14px;padding:18px;background:var(--card);cursor:pointer;transition:border-color .15s,transform .15s;font:inherit;text-align:left;width:100%}
 .opt:hover{border-color:var(--accent);transform:translateY(-2px)}
@@ -303,11 +305,13 @@ const TYPES = {
   insp:{title:"Inspektion", time:"Tager ca. 40 minutter", text:"Aflever bilen og gennemgå den sammen med en inspektør på stedet.",
        icon:'<rect x="6" y="6" width="32" height="36" rx="5" fill="none" stroke="var(--petrol2)" stroke-width="4"/><path d="M14 24l6 6 11-12" fill="none" stroke="var(--accent)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>'},
   drop:{title:"Drop-off", time:"Tager ca. 5 minutter", text:"Aflever bil og nøgler uden aftale om fremmøde. Bilen inspiceres efterfølgende.",
-       icon:'<circle cx="16" cy="18" r="9" fill="none" stroke="var(--petrol2)" stroke-width="4"/><path d="M23 23l15 15M32 32l5-5M28 36l4-4" stroke="var(--accent)" stroke-width="4.5" stroke-linecap="round"/>'}
+       icon:'<circle cx="16" cy="18" r="9" fill="none" stroke="var(--petrol2)" stroke-width="4"/><path d="M23 23l15 15M32 32l5-5M28 36l4-4" stroke="var(--accent)" stroke-width="4.5" stroke-linecap="round"/>'},
+  pickup:{title:"Afhentning", time:"", text:"Vi henter bilen hos dig på en adresse og et tidspunkt, du vælger.",
+       icon:'<path d="M22 41s-13-11.5-13-21a13 13 0 0 1 26 0c0 9.5-13 21-13 21z" fill="none" stroke="var(--petrol2)" stroke-width="4" stroke-linejoin="round"/><circle cx="22" cy="20" r="5" fill="var(--accent)"/>'}
 };
 
 const I18N = {
- da:{noMarket:"Der er ingen leasingselskaber på dette marked endnu.", setup:"Opsætning", name:"Dansk", h1:"Book inspektion eller aflevering af din leasingbil", intro:"Vælg dit leasingselskab og hvad du skal have gjort – så sender vi dig direkte til den rigtige booking.",
+ da:{noTypes:"Der er ingen bookingmuligheder for dette selskab endnu.", noMarket:"Der er ingen leasingselskaber på dette marked endnu.", setup:"Opsætning", name:"Dansk", h1:"Book inspektion eller aflevering af din leasingbil", intro:"Vælg dit leasingselskab og hvad du skal have gjort – så sender vi dig direkte til den rigtige booking.",
   s1:"Leasingselskab", s2:"Bookingtype", s3:"Booking", q1:"Hvem leaser du bilen hos?", q1sub:"Vælg dit leasingselskab for at se de bookingmuligheder, der gælder for dig.",
   search:"Søg efter leasingselskab", none:"Ingen leasingselskaber endnu – tilføj dem under Opsætning.", co:"Leasingselskab", change:"Skift",
   q2:"Hvad vil du booke?", subEmbed:"Bookingen åbner herunder, når du har valgt.", subGo:"Du sendes direkte videre til bookingsiden for dit valg.",
@@ -316,8 +320,9 @@ const I18N = {
   changeType:"Skift bookingtype", notShown:"Vises bookingen ikke?", openNew:"Åbn den i et nyt vindue", foot:"Demo – bookinglinks og logoer indsættes under Opsætning.",
   pre:["Pre-inspektion","","Få bilen gennemgået inden aflevering, så du kender eventuelle skader og kan nå at udbedre dem."],
   insp:["Inspektion","Tager ca. 40 minutter","Aflever bilen og gennemgå den sammen med en inspektør på stedet."],
-  drop:["Drop-off","Tager ca. 5 minutter","Aflever bil og nøgler uden aftale om fremmøde. Bilen inspiceres efterfølgende."]},
- sv:{noMarket:"Det finns inga leasingbolag på den här marknaden ännu.", setup:"Inställningar", name:"Svenska", h1:"Boka besiktning eller återlämning av din leasingbil", intro:"Välj ditt leasingbolag och vad du behöver göra – så skickar vi dig direkt till rätt bokning.",
+  drop:["Drop-off","Tager ca. 5 minutter","Aflever bil og nøgler uden aftale om fremmøde. Bilen inspiceres efterfølgende."],
+  pickup:["Afhentning","","Vi henter bilen hos dig på en adresse og et tidspunkt, du vælger."]},
+ sv:{noTypes:"Det finns inga bokningsalternativ för det här bolaget ännu.", noMarket:"Det finns inga leasingbolag på den här marknaden ännu.", setup:"Inställningar", name:"Svenska", h1:"Boka besiktning eller återlämning av din leasingbil", intro:"Välj ditt leasingbolag och vad du behöver göra – så skickar vi dig direkt till rätt bokning.",
   s1:"Leasingbolag", s2:"Bokningstyp", s3:"Bokning", q1:"Vilket bolag leasar du bilen genom?", q1sub:"Välj ditt leasingbolag för att se de bokningsalternativ som gäller för dig.",
   search:"Sök efter leasingbolag", none:"Inga leasingbolag ännu – lägg till dem under Inställningar.", co:"Leasingbolag", change:"Byt",
   q2:"Vad vill du boka?", subEmbed:"Bokningen öppnas nedanför när du har valt.", subGo:"Du skickas direkt vidare till bokningssidan för ditt val.",
@@ -326,8 +331,9 @@ const I18N = {
   changeType:"Byt bokningstyp", notShown:"Visas inte bokningen?", openNew:"Öppna den i ett nytt fönster", foot:"Demo – bokningslänkar och logotyper läggs in under Inställningar.",
   pre:["Förbesiktning","","Få bilen genomgången före återlämning, så att du känner till eventuella skador och hinner åtgärda dem."],
   insp:["Besiktning","Tar ca 40 minuter","Lämna tillbaka bilen och gå igenom den tillsammans med en besiktningsman på plats."],
-  drop:["Drop-off","Tar ca 5 minuter","Lämna bil och nycklar utan att vara på plats. Bilen besiktigas i efterhand."]},
- no:{noMarket:"Det finnes ingen leasingselskaper i dette markedet ennå.", setup:"Oppsett", name:"Norsk", h1:"Bestill inspeksjon eller innlevering av leasingbilen din", intro:"Velg leasingselskapet ditt og hva du trenger – så sender vi deg rett til riktig bestilling.",
+  drop:["Drop-off","Tar ca 5 minuter","Lämna bil och nycklar utan att vara på plats. Bilen besiktigas i efterhand."],
+  pickup:["Upphämtning","","Vi hämtar bilen hos dig på en adress och en tid som du väljer."]},
+ no:{noTypes:"Det finnes ingen bestillingsmuligheter for dette selskapet ennå.", noMarket:"Det finnes ingen leasingselskaper i dette markedet ennå.", setup:"Oppsett", name:"Norsk", h1:"Bestill inspeksjon eller innlevering av leasingbilen din", intro:"Velg leasingselskapet ditt og hva du trenger – så sender vi deg rett til riktig bestilling.",
   s1:"Leasingselskap", s2:"Bestillingstype", s3:"Bestilling", q1:"Hvem leaser du bilen hos?", q1sub:"Velg leasingselskapet ditt for å se bestillingsmulighetene som gjelder for deg.",
   search:"Søk etter leasingselskap", none:"Ingen leasingselskaper ennå – legg dem til under Oppsett.", co:"Leasingselskap", change:"Bytt",
   q2:"Hva vil du bestille?", subEmbed:"Bestillingen åpnes nedenfor når du har valgt.", subGo:"Du sendes rett videre til bestillingssiden for valget ditt.",
@@ -336,8 +342,9 @@ const I18N = {
   changeType:"Bytt bestillingstype", notShown:"Vises ikke bestillingen?", openNew:"Åpne den i et nytt vindu", foot:"Demo – bestillingslenker og logoer legges inn under Oppsett.",
   pre:["Forhåndsinspeksjon","","Få bilen gjennomgått før innlevering, slik at du kjenner til eventuelle skader og rekker å utbedre dem."],
   insp:["Inspeksjon","Tar ca. 40 minutter","Lever bilen og gå gjennom den sammen med en inspektør på stedet."],
-  drop:["Drop-off","Tar ca. 5 minutter","Lever bil og nøkler uten å være til stede. Bilen inspiseres i etterkant."]},
- fi:{noMarket:"Tällä markkinalla ei ole vielä leasingyhtiöitä.", setup:"Asetukset", name:"Suomi", h1:"Varaa leasingautosi tarkastus tai palautus", intro:"Valitse leasingyhtiösi ja mitä tarvitset – ohjaamme sinut suoraan oikeaan varaukseen.",
+  drop:["Drop-off","Tar ca. 5 minutter","Lever bil og nøkler uten å være til stede. Bilen inspiseres i etterkant."],
+  pickup:["Henting","","Vi henter bilen hos deg på en adresse og et tidspunkt du velger."]},
+ fi:{noTypes:"Tälle yhtiölle ei ole vielä varausvaihtoehtoja.", noMarket:"Tällä markkinalla ei ole vielä leasingyhtiöitä.", setup:"Asetukset", name:"Suomi", h1:"Varaa leasingautosi tarkastus tai palautus", intro:"Valitse leasingyhtiösi ja mitä tarvitset – ohjaamme sinut suoraan oikeaan varaukseen.",
   s1:"Leasingyhtiö", s2:"Varaustyyppi", s3:"Varaus", q1:"Mistä yhtiöstä leasaat autosi?", q1sub:"Valitse leasingyhtiösi nähdäksesi sinua koskevat varausvaihtoehdot.",
   search:"Hae leasingyhtiötä", none:"Ei vielä leasingyhtiöitä – lisää ne kohdassa Asetukset.", co:"Leasingyhtiö", change:"Vaihda",
   q2:"Mitä haluat varata?", subEmbed:"Varaus avautuu alle, kun olet tehnyt valinnan.", subGo:"Sinut ohjataan suoraan valintasi varaussivulle.",
@@ -346,8 +353,9 @@ const I18N = {
   changeType:"Vaihda varaustyyppiä", notShown:"Eikö varaus näy?", openNew:"Avaa se uudessa ikkunassa", foot:"Demo – varauslinkit ja logot lisätään kohdassa Asetukset.",
   pre:["Ennakkotarkastus","","Tarkastuta auto ennen palautusta, niin tiedät mahdolliset vauriot ja ehdit korjata ne."],
   insp:["Tarkastus","Kestää noin 40 minuuttia","Palauta auto ja käy se läpi yhdessä tarkastajan kanssa paikan päällä."],
-  drop:["Drop-off","Kestää noin 5 minuuttia","Jätä auto ja avaimet ilman, että sinun tarvitsee olla paikalla. Auto tarkastetaan jälkikäteen."]},
- en:{noMarket:"There are no leasing companies in this market yet.", setup:"Settings", name:"English", h1:"Book an inspection or return of your lease car", intro:"Choose your leasing company and what you need – we'll take you straight to the right booking.",
+  drop:["Drop-off","Kestää noin 5 minuuttia","Jätä auto ja avaimet ilman, että sinun tarvitsee olla paikalla. Auto tarkastetaan jälkikäteen."],
+  pickup:["Nouto","","Noudamme auton valitsemastasi osoitteesta valitsemanasi aikana."]},
+ en:{noTypes:"There are no booking options for this company yet.", noMarket:"There are no leasing companies in this market yet.", setup:"Settings", name:"English", h1:"Book an inspection or return of your lease car", intro:"Choose your leasing company and what you need – we'll take you straight to the right booking.",
   s1:"Leasing company", s2:"Booking type", s3:"Booking", q1:"Who do you lease your car from?", q1sub:"Choose your leasing company to see the booking options that apply to you.",
   search:"Search for leasing company", none:"No leasing companies yet – add them under Settings.", co:"Leasing company", change:"Change",
   q2:"What would you like to book?", subEmbed:"The booking opens below once you've chosen.", subGo:"You'll be taken straight to the booking page for your choice.",
@@ -356,12 +364,14 @@ const I18N = {
   changeType:"Change booking type", notShown:"Booking not showing?", openNew:"Open it in a new window", foot:"Demo – booking links and logos are added under Settings.",
   pre:["Pre-inspection","","Have the car checked before returning it, so you know about any damage and have time to fix it."],
   insp:["Inspection","Takes approx. 40 minutes","Return the car and go through it together with an inspector on site."],
-  drop:["Drop-off","Takes approx. 5 minutes","Leave the car and keys without having to be present. The car is inspected afterwards."]}
+  drop:["Drop-off","Takes approx. 5 minutes","Leave the car and keys without having to be present. The car is inspected afterwards."],
+  pickup:["Pick-up","","We collect the car from an address and at a time of your choosing."]}
 };
 const LANGS = ["da","sv","no","fi","en"];
 let lang = "da"; try{ const v = localStorage.getItem("booking-demo-lang"); if(LANGS.includes(v)) lang = v; }catch(e){}
 const L = () => I18N[lang];
 const MARKETS = {da:"Danmark", sv:"Sverige", no:"Norge", fi:"Finland", en:"Engelsk version"};
+const isOn = (c,k) => !(Array.isArray(c.off) && c.off.includes(k));
 const avail = c => !Array.isArray(c.markets) || !c.markets.length || c.markets.includes(lang);
 const TT = k => { const [title,time,text] = L()[k]; return {...TYPES[k], title, time, text}; };
 function applyStatic(){
@@ -390,7 +400,8 @@ function normalize(d){
   return arr.filter(c => c && typeof c === "object").map(c => ({name:String(c.name||""),
     ...(okLogo(c.logo)?{logo:String(c.logo)}:{}),
     ...(Array.isArray(c.markets)&&c.markets.length?{markets:c.markets.map(String).filter(m=>["da","sv","no","fi","en"].includes(m))}:{}),
-    links:{pre:String(c.links?.pre||""), insp:String(c.links?.insp||""), drop:String(c.links?.drop||"")}}));
+    ...(Array.isArray(c.off)&&c.off.length?{off:c.off.map(String).filter(k=>k in TYPES)}:{}),
+    links:{pre:String(c.links?.pre||""), insp:String(c.links?.insp||""), drop:String(c.links?.drop||""), pickup:String(c.links?.pickup||"")}}));
 }
 let localSavedAt = 0, source = "standard", fileUpdated = null;
 function load(){
@@ -451,8 +462,9 @@ function render(){
     app.innerHTML = `${stepsHtml()}<div class="fade">
       <div class="chosen">${logoBox(c,"mini")}${L().co}: <b>${esc(c.name)}</b><button class="link" type="button" id="back">${L().change}</button></div>
       <h2>${L().q2}</h2><p class="sub">${EMBED?L().subEmbed:L().subGo}</p>
-      <div class="grp">${L().g1}</div><div class="opts one">${optCard("pre")}</div>
-      <div class="grp">${L().g2}</div><div class="opts">${optCard("insp")}${optCard("drop")}</div>
+      ${isOn(c,"pre")?`<div class="grp">${L().g1}</div><div class="opts one">${optCard("pre")}</div>`:""}
+      ${["insp","drop","pickup"].some(k=>isOn(c,k))?`<div class="grp">${L().g2}</div><div class="opts">${["insp","drop","pickup"].filter(k=>isOn(c,k)).map(optCard).join("")}</div>`:""}
+      ${Object.keys(TYPES).some(k=>isOn(c,k))?"":`<p class="sub">${L().noTypes}</p>`}
       <div class="note" id="note"></div></div>`;
   }
 }
@@ -485,7 +497,7 @@ let draft = [];
 const flash = t => { toast.textContent = t; clearTimeout(flash.t); flash.t = setTimeout(()=>toast.textContent="", 2600); };
 
 let cs = 0;
-const optLabel = c => (c.name||"(uden navn)") + (Array.isArray(c.markets)&&c.markets.length ? " (kun " + c.markets.map(m=>({da:"DK",sv:"SE",no:"NO",fi:"FI",en:"EN"})[m]).join(", ") + ")" : "") + (Object.values(c.links||{}).filter(okUrl).length===3 ? "" : " – mangler links");
+const optLabel = c => (c.name||"(uden navn)") + (Array.isArray(c.markets)&&c.markets.length ? " (kun " + c.markets.map(m=>({da:"DK",sv:"SE",no:"NO",fi:"FI",en:"EN"})[m]).join(", ") + ")" : "") + (Object.keys(TYPES).filter(k=>isOn(c,k)).every(k=>okUrl((c.links||{})[k])) ? "" : " – mangler links");
 function renderCfg(){
   if(cs >= draft.length) cs = draft.length - 1; if(cs < 0) cs = 0;
   const opts = draft.map((c,i)=>({c,i})).sort((x,y)=>x.c.name.localeCompare(y.c.name,"da"))
@@ -493,7 +505,8 @@ function renderCfg(){
   const head = draft.length ? `<label class="lbl" for="cfgSel">Vælg det selskab, du vil redigere</label><div class="pick" style="margin-bottom:14px"><select id="cfgSel">${opts}</select></div>` : '<p class="sub">Ingen selskaber. Tilføj et herunder.</p>';
   list.innerHTML = head + draft.map((c,i)=>({c,i})).filter(({i})=>i===cs).map(({c,i})=>`<div class="cfg">
     <div class="row"><label for="n${i}">Navn</label><input id="n${i}" data-i="${i}" data-f="name" value="${esc(c.name)}"></div>
-    ${Object.keys(TYPES).map(k=>`<div class="row"><label for="${k}${i}">${TYPES[k].title}${k!=="pre"?" (aflevering)":""}</label><input id="${k}${i}" type="url" inputmode="url" placeholder="https://…" data-i="${i}" data-f="${k}" value="${esc((c.links||{})[k])}"></div>`).join("")}
+    <div class="row"><span class="rl">Bookingformer</span><span class="rl" style="font-weight:500">Sæt flueben ved de former, selskabet tilbyder, og indsæt bookinglinket.</span></div>
+    ${Object.keys(TYPES).map(k=>`<div class="row"><label class="tgl"><input type="checkbox" data-off="${k}" data-i="${i}"${isOn(c,k)?" checked":""}>${TYPES[k].title}${k!=="pre"?" <small>(aflevering)</small>":""}</label><input id="${k}${i}" type="url" inputmode="url" placeholder="${isOn(c,k)?"https://…":"Ikke aktiv"}" data-i="${i}" data-f="${k}" value="${esc((c.links||{})[k])}"${isOn(c,k)?"":" disabled"}></div>`).join("")}
     <div class="row"><label for="l${i}">Logo</label><div class="lg"><span class="prev paste" tabindex="0" title="Klik her og tryk Ctrl+V / Cmd+V">${okLogo(c.logo)?`<img src="${esc(c.logo)}" alt="">`:"Sæt ind her"}</span><input id="l${i}" type="file" accept="image/*,.svg" data-logo="${i}">${okLogo(c.logo)?`<button class="btn sm" type="button" data-rmlogo="${i}">Fjern logo</button>`:""}</div></div>
     <div class="row"><span class="rl">Vises på</span><div class="mk">${Object.keys(MARKETS).map(m=>`<label><input type="checkbox" data-mk="${m}" data-i="${i}"${Array.isArray(c.markets)&&c.markets.length&&!c.markets.includes(m)?"":" checked"}><svg viewBox="0 0 30 20" aria-hidden="true">${FLAGS[m]}</svg>${MARKETS[m]}</label>`).join("")}</div></div>
     <p class="hint" style="margin-top:-2px">Fjern fluebenet ved de markeder, hvor selskabet ikke skal vises. Markedet følger det flag, kunden har valgt øverst på siden.</p>
@@ -560,6 +573,12 @@ list.addEventListener("change", async e => {
 });
 list.addEventListener("input", e => {
   const el = e.target; if(el.type==="file") return;
+  if(el.dataset.off){ const c = draft[+el.dataset.i], k = el.dataset.off;
+    const off = new Set(c.off||[]); if(el.checked) off.delete(k); else off.add(k);
+    if(off.size) c.off = [...off]; else delete c.off;
+    const u = document.getElementById(k + el.dataset.i); if(u){ u.disabled = !el.checked; u.placeholder = el.checked ? "https://…" : "Ikke aktiv"; }
+    const o = document.querySelector(`#cfgSel option[value="${el.dataset.i}"]`); if(o) o.textContent = optLabel(c);
+    json.value = JSON.stringify(draft, null, 2); return; }
   if(el.dataset.mk){ const c = draft[+el.dataset.i]; const on = [...list.querySelectorAll(`[data-mk][data-i="${el.dataset.i}"]`)].filter(x=>x.checked).map(x=>x.dataset.mk);
     if(!on.length){ el.checked = true; flash("Selskabet skal vises på mindst ét marked – brug Fjern selskab for at slette det"); return; }
     if(on.length===Object.keys(MARKETS).length) delete c.markets; else c.markets = on;
@@ -579,7 +598,7 @@ document.getElementById("openCfg").addEventListener("click", () => { draft = clo
     : source==="lokal" ? `Siden viser dine lokale ændringer fra denne browser (gemt ${localSavedAt>1?fmt(localSavedAt):"tidligere"}). ${ghOn()?"Tryk Gem og luk for at udgive dem til alle.":"Kunderne ser dem først, når du forbinder til GitHub og trykker Gem og luk."}`
     : "Der er ingen opsætningsfil på GitHub endnu. Kunderne ser kun selskabernes navne uden logoer og links."; try{ dlg.showModal(); }catch(err){ dlg.setAttribute("open",""); } });
 document.getElementById("closeCfg").addEventListener("click", () => dlg.close());
-document.getElementById("addCo").addEventListener("click", () => { draft.push({name:"Nyt leasingselskab", links:{pre:"",insp:"",drop:""}}); cs = draft.length - 1; renderCfg(); list.querySelector(".cfg input")?.select(); });
+document.getElementById("addCo").addEventListener("click", () => { draft.push({name:"Nyt leasingselskab", links:{pre:"",insp:"",drop:"",pickup:""}}); cs = draft.length - 1; renderCfg(); list.querySelector(".cfg input")?.select(); });
 /* ===== GitHub-udgivelse ===== */
 const GHKEY = "booking-demo-gh";
 const guessRepo = () => { const o = location.hostname.endsWith(".github.io") ? location.hostname.split(".")[0] : "andersriksted-byte"; const r = location.pathname.split("/").filter(Boolean)[0] || "booking-demo"; return o + "/" + r; };
@@ -622,7 +641,7 @@ document.getElementById("ghForget").addEventListener("click", () => { gh = {repo
 let saving = false;
 document.getElementById("save").addEventListener("click", async () => {
   if(saving) return;
-  const bad = draft.flatMap(c => Object.entries(c.links||{}).filter(([k,v]) => v && !okUrl(v)).map(([k]) => `${c.name}: ${TYPES[k].title}`));
+  const bad = draft.flatMap(c => Object.entries(c.links||{}).filter(([k,v]) => v && isOn(c,k) && !okUrl(v)).map(([k]) => `${c.name}: ${TYPES[k].title}`));
   if(bad.length){ flash("Links skal starte med https:// – tjek " + bad[0]); return; }
   companies = clone(draft).filter(c => String(c.name).trim());
   const ok = store(companies); state = {step:1, co:null}; render();
