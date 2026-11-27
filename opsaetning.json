@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-27T11:29:55.584Z",
+  "updated": "2026-11-27T11:53:31.648Z",
   "companies": [
     {
       "name": "Drivalia Lease Danmark A/S",
@@ -7,7 +7,8 @@
       "links": {
         "pre": "",
         "insp": "",
-        "drop": ""
+        "drop": "",
+        "pickup": ""
       }
     },
     {
@@ -16,7 +17,8 @@
       "links": {
         "pre": "",
         "insp": "",
-        "drop": ""
+        "drop": "",
+        "pickup": ""
       }
     },
     {
@@ -25,7 +27,8 @@
       "links": {
         "pre": "",
         "insp": "",
-        "drop": ""
+        "drop": "",
+        "pickup": ""
       }
     },
     {
@@ -34,7 +37,8 @@
       "links": {
         "pre": "",
         "insp": "https://automotive-damageinspection.cabgroup.net/7818d077-c22b-4003-a2aa-30617bf25e94",
-        "drop": ""
+        "drop": "",
+        "pickup": ""
       }
     },
     {
@@ -43,7 +47,8 @@
       "links": {
         "pre": "",
         "insp": "",
-        "drop": ""
+        "drop": "",
+        "pickup": ""
       }
     },
     {
@@ -52,7 +57,8 @@
       "links": {
         "pre": "",
         "insp": "",
-        "drop": ""
+        "drop": "",
+        "pickup": ""
       }
     },
     {
@@ -61,7 +67,8 @@
       "links": {
         "pre": "",
         "insp": "",
-        "drop": ""
+        "drop": "",
+        "pickup": ""
       }
     },
     {
@@ -70,7 +77,8 @@
       "links": {
         "pre": "",
         "insp": "",
-        "drop": ""
+        "drop": "",
+        "pickup": ""
       }
     },
     {
@@ -79,7 +87,8 @@
       "links": {
         "pre": "",
         "insp": "",
-        "drop": ""
+        "drop": "",
+        "pickup": ""
       }
     },
     {
@@ -88,7 +97,8 @@
       "links": {
         "pre": "",
         "insp": "",
-        "drop": ""
+        "drop": "",
+        "pickup": ""
       }
     },
     {
@@ -97,7 +107,8 @@
       "links": {
         "pre": "",
         "insp": "",
-        "drop": ""
+        "drop": "",
+        "pickup": ""
       }
     },
     {
@@ -106,7 +117,8 @@
       "links": {
         "pre": "",
         "insp": "",
-        "drop": ""
+        "drop": "",
+        "pickup": ""
       }
     },
     {
@@ -115,7 +127,8 @@
       "links": {
         "pre": "",
         "insp": "",
-        "drop": ""
+        "drop": "",
+        "pickup": ""
       }
     },
     {
@@ -124,7 +137,8 @@
       "links": {
         "pre": "",
         "insp": "",
-        "drop": ""
+        "drop": "",
+        "pickup": ""
       }
     },
     {
@@ -133,7 +147,8 @@
       "links": {
         "pre": "",
         "insp": "",
-        "drop": ""
+        "drop": "",
+        "pickup": ""
       }
     },
     {
@@ -142,7 +157,8 @@
       "links": {
         "pre": "",
         "insp": "",
-        "drop": ""
+        "drop": "",
+        "pickup": ""
       }
     },
     {
@@ -151,7 +167,8 @@
       "links": {
         "pre": "",
         "insp": "",
-        "drop": ""
+        "drop": "",
+        "pickup": ""
       }
     },
     {
@@ -160,7 +177,8 @@
       "links": {
         "pre": "",
         "insp": "",
-        "drop": ""
+        "drop": "",
+        "pickup": ""
       }
     },
     {
@@ -169,7 +187,8 @@
       "links": {
         "pre": "",
         "insp": "",
-        "drop": ""
+        "drop": "",
+        "pickup": ""
       }
     }
   ]
