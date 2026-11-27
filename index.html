@@ -31,7 +31,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Figtree,syste
 .brand i{width:12px;height:12px;border-radius:50%;background:var(--accent);display:inline-block}
 .top h1{font-size:clamp(30px,4.6vw,46px);line-height:1.05;margin:18px 0 8px;text-wrap:balance;font-weight:800}
 .top p{margin:0;color:#cfe3e8;max-width:56ch}
-.car{position:absolute;right:max(4vw,12px);bottom:-6px;width:min(300px,38vw);opacity:.95;pointer-events:none}
+
 main{max-width:900px;margin:-56px auto 0;padding:0 max(5vw,16px) 48px;position:relative}
 .panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:clamp(20px,3.4vw,36px);box-shadow:0 10px 30px rgba(10,40,50,.08)}
 .steps{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 22px;padding:0;list-style:none}
@@ -120,10 +120,32 @@ textarea{min-height:120px;font-family:ui-monospace,monospace;font-size:13px}
 .df{padding:16px 24px;border-top:1px solid var(--line);display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;position:sticky;bottom:0;background:var(--card)}
 .df .l{margin-right:auto;display:flex;gap:10px;flex-wrap:wrap}
 .toast{font-size:14px;color:var(--petrol2);align-self:center}
+.scene{max-width:900px;margin:18px auto 0}
+.scene svg{display:block;width:100%;max-width:760px;height:auto;max-height:210px;margin-left:auto}
+.scene *{transform-origin:0 0}
+.scene .wheel{transform-box:fill-box;transform-origin:center}
+.scene .badge{transform-box:fill-box;transform-origin:center}
+.carMove{transform:none}.custMove{transform:translateX(372px)}.inspMove{transform:translateX(412px)}
+.armC{transform:rotate(-88deg)}.armI{transform:rotate(88deg)}.scan{opacity:0}
+.loop{animation:loop 15s linear infinite}.carMove{animation:car 15s infinite}.wheel{animation:spin 15s infinite}
+.custMove{animation:cust 15s linear infinite}.inspMove{animation:insp 15s linear infinite}
+.armC{animation:armC 15s linear infinite}.armI{animation:armI 15s linear infinite}.clip{animation:clip 15s ease-in-out infinite}
+.scan{animation:scan 15s ease-in-out infinite}.badge{animation:badge 15s ease-out infinite}
+@keyframes loop{0%{opacity:0}3%{opacity:1}95%{opacity:1}100%{opacity:0}}
+@keyframes car{0%{transform:translateX(-430px);animation-timing-function:cubic-bezier(.2,.6,.3,1)}18%,100%{transform:translateX(0)}}
+@keyframes spin{0%{transform:rotate(0);animation-timing-function:cubic-bezier(.2,.6,.3,1)}18%,100%{transform:rotate(1080deg)}}
+@keyframes cust{0%,20%{transform:translateX(318px);opacity:0}23%{transform:translateX(322px);opacity:1}32%,78%{transform:translateX(372px);opacity:1}94%{transform:translateX(-40px);opacity:1}100%{transform:translateX(-40px);opacity:0}}
+@keyframes insp{0%,22%{transform:translateX(510px);opacity:0}25%{transform:translateX(506px);opacity:1}36%,100%{transform:translateX(412px);opacity:1}}
+@keyframes clip{0%,36%{transform:rotate(0)}39%,54%{transform:rotate(55deg)}57%,100%{transform:rotate(0)}}
+@keyframes scan{0%,36%{transform:translateX(0);opacity:0}38%{opacity:.9}45%{transform:translateX(142px)}53%{transform:translateX(0);opacity:.9}55%,100%{transform:translateX(0);opacity:0}}
+@keyframes badge{0%,55%{transform:scale(0)}58%{transform:scale(1.2)}60%,88%{transform:scale(1)}91%,100%{transform:scale(0)}}
+@keyframes armC{0%,58%{transform:rotate(0)}61%{transform:rotate(-80deg)}63%{transform:rotate(-96deg)}65%{transform:rotate(-80deg)}67%{transform:rotate(-96deg)}69%{transform:rotate(-86deg)}71%{transform:rotate(0)}74%{transform:rotate(-150deg)}76%{transform:rotate(-172deg)}78%{transform:rotate(-145deg)}80%{transform:rotate(-172deg)}82%{transform:rotate(-145deg)}84%{transform:rotate(-172deg)}86%{transform:rotate(-148deg)}88%{transform:rotate(-172deg)}90%{transform:rotate(-148deg)}92%{transform:rotate(-170deg)}94%,100%{transform:rotate(0)}}
+@keyframes armI{0%,58%{transform:rotate(0)}61%{transform:rotate(80deg)}63%{transform:rotate(96deg)}65%{transform:rotate(80deg)}67%{transform:rotate(96deg)}69%{transform:rotate(86deg)}71%{transform:rotate(0)}74%{transform:rotate(150deg)}76%{transform:rotate(172deg)}78%{transform:rotate(145deg)}80%{transform:rotate(172deg)}82%{transform:rotate(145deg)}84%{transform:rotate(172deg)}86%{transform:rotate(148deg)}88%{transform:rotate(172deg)}90%,100%{transform:rotate(0)}}
+@media(prefers-reduced-motion:reduce){.scene *{animation:none!important}}
 .fade{animation:f .25s ease}
 @keyframes f{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.fade{animation:none}.co,.opt{transition:none}}
-@media(max-width:600px){.opts{grid-template-columns:minmax(0,1fr)}.car{display:none}.cfg .row{grid-template-columns:minmax(0,1fr);gap:4px}.steps li+li::before{width:10px}}
+@media(max-width:600px){.opts{grid-template-columns:minmax(0,1fr)}.cfg .row{grid-template-columns:minmax(0,1fr);gap:4px}.steps li+li::before{width:10px}}
 </style>
 </head>
 <body>
@@ -132,16 +154,60 @@ textarea{min-height:120px;font-family:ui-monospace,monospace;font-size:13px}
   <div style="max-width:900px;margin:0 auto">
     <h1 data-t="h1">Book inspektion eller aflevering af din leasingbil</h1>
   </div>
-  <svg class="car" viewBox="0 0 300 110" aria-hidden="true">
-    <ellipse cx="150" cy="102" rx="135" ry="7" fill="#08323d"/>
-    <path d="M22 78c0-12 8-20 22-22l40-6 34-24c8-6 18-8 28-8h52c12 0 22 4 30 12l22 22 26 4c10 2 16 10 16 20v8H22z" fill="#e8f2f4"/>
-    <path d="M124 30c6-4 12-6 20-6h46c9 0 16 3 22 9l15 16H96z" fill="#0f4c5c" opacity=".55"/>
-    <path d="M160 24v26" stroke="#e8f2f4" stroke-width="4"/>
-    <path d="M22 86h256" stroke="#c6dade" stroke-width="3"/>
-    <rect x="262" y="66" width="14" height="7" rx="3" fill="#ff6b3d"/>
-    <circle cx="80" cy="88" r="17" fill="#10222a"/><circle cx="80" cy="88" r="7" fill="#9db1b6"/>
-    <circle cx="226" cy="88" r="17" fill="#10222a"/><circle cx="226" cy="88" r="7" fill="#9db1b6"/>
-  </svg>
+  <div class="scene" aria-hidden="true"><svg viewBox="0 0 640 170" preserveAspectRatio="xMidYMax meet">
+    <defs>
+      <linearGradient id="beam" x1="0" x2="1"><stop offset="0" stop-color="#ff6b3d" stop-opacity="0"/><stop offset=".5" stop-color="#ffb08f" stop-opacity=".9"/><stop offset="1" stop-color="#ff6b3d" stop-opacity="0"/></linearGradient>
+      <g id="fig"><path d="M-4-18L-5 0M4-18L5 0" stroke="#10222a" stroke-width="4.5" stroke-linecap="round"/></g>
+    </defs>
+    <g class="loop">
+      <rect x="0" y="150" width="640" height="20" fill="#0b3d4a"/>
+      <path d="M0 160H640" stroke="#2c6878" stroke-width="2" stroke-dasharray="18 14"/>
+      <!-- inspektionshal -->
+      <g>
+        <ellipse cx="510" cy="151" rx="96" ry="4" fill="#08323d"/>
+        <rect x="430" y="62" width="160" height="88" rx="4" fill="#e8f2f4"/>
+        <path d="M420 66L510 34L600 66Z" fill="#cfe3e8"/>
+        <rect x="420" y="62" width="180" height="7" rx="3" fill="#ff6b3d"/>
+        <rect x="468" y="92" width="84" height="58" rx="3" fill="#08323d"/>
+        <path d="M468 100H552M468 108H552" stroke="#174c59" stroke-width="2"/>
+        <rect x="486" y="72" width="48" height="15" rx="7.5" fill="#0f4c5c"/>
+        <circle cx="500" cy="79.5" r="4.2" fill="none" stroke="#fff" stroke-width="2"/><path d="M503 82.5l3.5 3.5" stroke="#ff6b3d" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M512 80l3 3 6-6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="440" y="92" width="18" height="22" rx="2" fill="#bcd6dc"/><rect x="562" y="92" width="18" height="22" rx="2" fill="#bcd6dc"/>
+      </g>
+      <!-- bil -->
+      <g class="carMove"><g transform="translate(240 95) scale(.5)">
+        <ellipse cx="150" cy="104" rx="140" ry="7" fill="#08323d"/>
+        <path d="M22 78c0-12 8-20 22-22l40-6 34-24c8-6 18-8 28-8h52c12 0 22 4 30 12l22 22 26 4c10 2 16 10 16 20v8H22z" fill="#e8f2f4"/>
+        <path d="M124 30c6-4 12-6 20-6h46c9 0 16 3 22 9l15 16H96z" fill="#0f4c5c" opacity=".55"/>
+        <path d="M160 24v26" stroke="#e8f2f4" stroke-width="4"/>
+        <path d="M22 86h256" stroke="#c6dade" stroke-width="3"/>
+        <rect x="262" y="66" width="14" height="7" rx="3" fill="#ff6b3d"/>
+        <g class="wheel"><circle cx="80" cy="88" r="17" fill="#10222a"/><circle cx="80" cy="88" r="7" fill="#9db1b6"/><path d="M80 76v24M68 88h24" stroke="#10222a" stroke-width="3"/></g>
+        <g class="wheel"><circle cx="226" cy="88" r="17" fill="#10222a"/><circle cx="226" cy="88" r="7" fill="#9db1b6"/><path d="M226 76v24M214 88h24" stroke="#10222a" stroke-width="3"/></g>
+      </g></g>
+      <rect class="scan" x="236" y="84" width="14" height="66" fill="url(#beam)"/>
+      <g class="badge"><circle cx="315" cy="70" r="13" fill="#fff"/><path d="M308.5 70.5l4.5 4.5 8.5-9" fill="none" stroke="#0f4c5c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+      <!-- inspektør -->
+      <g class="inspMove"><g transform="translate(0 150)">
+        <use href="#fig"/>
+        <g transform="translate(6 -32)"><g class="clip"><path d="M0 0V15" stroke="#c68b5f" stroke-width="4.5" stroke-linecap="round"/><rect x="-6" y="12" width="9" height="11" rx="1.5" fill="#fff" stroke="#10222a" stroke-width="1.5"/></g></g>
+        <rect x="-8" y="-37" width="16" height="21" rx="6" fill="#ff6b3d"/><path d="M-8-27H8" stroke="#ffe0d4" stroke-width="2"/>
+        <circle cx="0" cy="-44" r="7" fill="#c68b5f"/><path d="M-8-47a8 8 0 0 1 16 0z" fill="#10222a"/><path d="M-8-47h-4" stroke="#10222a" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="-3.2" cy="-43.5" r="1.1" fill="#10222a"/>
+        <g transform="translate(-6 -32)"><g class="armI"><path d="M0 0V16" stroke="#c68b5f" stroke-width="4.5" stroke-linecap="round"/></g></g>
+      </g></g>
+      <!-- kunde -->
+      <g class="custMove"><g transform="translate(0 150)">
+        <use href="#fig"/>
+        <rect x="-8" y="-37" width="16" height="21" rx="6" fill="#7cc4d4"/>
+        <circle cx="0" cy="-44" r="7" fill="#f1c7a4"/><path d="M-7-46c1-6 5-8 9-7 3 0 6 2 5 6-3-2-8-2-14 1z" fill="#6b3f22"/>
+        <circle cx="3.2" cy="-43.5" r="1.1" fill="#10222a"/>
+        <g transform="translate(6 -32)"><g class="armC"><path d="M0 0V16" stroke="#f1c7a4" stroke-width="4.5" stroke-linecap="round"/></g></g>
+      </g></g>
+    </g>
+  </svg></div>
+
 </header>
 
 <main>
