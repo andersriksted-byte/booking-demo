@@ -72,7 +72,7 @@ h2{font-size:24px;line-height:1.2;margin:0 0 6px}
 .olist .grip{color:var(--mute);letter-spacing:-2px;font-size:14px}.olist .on{color:var(--mute);font-size:14px;width:2em;text-align:right;flex:none}
 .olist .onm{flex:1;font-weight:600;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .olist .ar{min-height:36px;width:40px;padding:0;flex:none}
-.ghbox{border:1.5px solid var(--accent);border-radius:14px;padding:14px 16px;margin:18px 0 0;font-size:15px}.ghbox summary{cursor:pointer;font-weight:600;min-height:32px;display:flex;align-items:center}.ghbox .row{display:grid;grid-template-columns:150px minmax(0,1fr);gap:10px;align-items:center;margin-bottom:8px}
+.ghbox{border:1.5px solid var(--accent);border-radius:14px;padding:14px 16px;margin:0 0 18px;font-size:15px}.ghbox summary{cursor:pointer;font-weight:600;min-height:32px;display:flex;align-items:center}.ghbox .row{display:grid;grid-template-columns:150px minmax(0,1fr);gap:10px;align-items:center;margin-bottom:8px}
 .ok{color:#1d7a4a;font-weight:600}.warn{color:#b54708;font-weight:600}
 .pubnote{position:fixed;left:50%;bottom:20px;transform:translate(-50%,20px);background:var(--petrol);color:#fff;padding:12px 18px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;font-weight:600;max-width:92vw}.pubnote.show{opacity:1;transform:translate(-50%,0)}
 .hint{margin:4px 0 10px;font-size:14px;color:var(--mute)}
@@ -227,9 +227,6 @@ textarea{min-height:120px;font-family:ui-monospace,monospace;font-size:13px}
 <dialog id="cfg">
   <div class="dh"><h2>Opsætning af selskaber og links</h2><button class="btn sm" type="button" id="closeCfg">Luk</button></div>
   <div class="db">
-    <p class="sub">Vælg et selskab i listen og indsæt bookinglinket for hver kombination af leasingselskab og bookingtype, og upload evt. selskabets logo (PNG, JPG eller SVG). Felter uden link vises som "link mangler" i flowet. Ændringer gemmes i denne browser.</p>
-    <div id="cfgList"></div>
-    <button class="btn" type="button" id="addCo">+ Tilføj leasingselskab</button>
     <div class="ghbox" id="ghbox">
       <b>Udgiv automatisk til alle</b>
       <p class="sub" style="margin:6px 0 10px" id="ghState"></p>
@@ -252,6 +249,10 @@ textarea{min-height:120px;font-family:ui-monospace,monospace;font-size:13px}
         <button class="btn sm" type="button" id="dlJson">Hent opsætningsfil</button>
       </details>
     </div>
+    <p class="sub">Vælg et selskab i listen og indsæt bookinglinket for hver kombination af leasingselskab og bookingtype, og upload evt. selskabets logo (PNG, JPG eller SVG). Felter uden link vises som "link mangler" i flowet.</p>
+    <div id="cfgList"></div>
+    <button class="btn" type="button" id="addCo">+ Tilføj leasingselskab</button>
+    
   </div>
   <div class="df">
     <div class="l"></div>
