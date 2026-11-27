@@ -236,13 +236,11 @@ textarea{min-height:120px;font-family:ui-monospace,monospace;font-size:13px}
         <li>Efter 1–2 minutter ser alle, der åbner siden, dine logoer, links, markeder og rækkefølge.</li>
       </ol>
       <div style="display:flex;gap:10px;margin:0 0 14px;flex-wrap:wrap"><button class="btn sm pri" type="button" id="dlJson">Hent opsætningsfil</button></div>
-      <p class="sub" style="margin:0 0 8px">Du kan også kopiere opsætningen som tekst og indsætte den på en anden computer:</p>
-      <textarea id="json" spellcheck="false"></textarea>
-      <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap"><button class="btn sm" type="button" id="copyJson">Kopiér</button><button class="btn sm" type="button" id="loadJson">Indlæs fra feltet</button></div>
+      
     </details>
   </div>
   <div class="df">
-    <div class="l"><button class="btn" type="button" id="reset">Nulstil til standard</button></div>
+    <div class="l"></div>
     <span class="toast" id="toast"></span>
     <button class="btn pri" type="button" id="save">Gem og luk</button>
   </div>
@@ -460,7 +458,7 @@ app.addEventListener("click", e => {
 });
 
 /* ===== Opsætning ===== */
-const dlg = document.getElementById("cfg"), list = document.getElementById("cfgList"), toast = document.getElementById("toast"), json = document.getElementById("json");
+const dlg = document.getElementById("cfg"), list = document.getElementById("cfgList"), toast = document.getElementById("toast"), json = document.getElementById("json") || {value:"", select(){}};
 let draft = [];
 const flash = t => { toast.textContent = t; clearTimeout(flash.t); flash.t = setTimeout(()=>toast.textContent="", 2600); };
 
@@ -567,7 +565,6 @@ document.getElementById("save").addEventListener("click", () => {
   const ok = store(companies); state = {step:1, co:null}; render(); if(ok){ dlg.close(); return; }
   flash(ok ? "Gemt" : "Vises nu, men kunne ikke gemmes permanent – prøv mindre logofiler");
 });
-document.getElementById("reset").addEventListener("click", () => { draft = clone(DEFAULT); renderCfg(); flash("Standard indlæst – tryk Gem og luk for at bruge den"); });
 function exportText(){ return JSON.stringify({updated:new Date().toISOString(), companies:draft}, null, 2); }
 document.getElementById("dlJson").addEventListener("click", () => {
   try{ const blob = new Blob([exportText()], {type:"application/json"}), a = document.createElement("a");
@@ -575,8 +572,8 @@ document.getElementById("dlJson").addEventListener("click", () => {
     setTimeout(()=>URL.revokeObjectURL(a.href), 4000); flash("opsaetning.json er hentet – upload den til GitHub"); }
   catch(e){ flash("Kunne ikke hente filen – brug Kopiér i stedet"); }
 });
-document.getElementById("copyJson").addEventListener("click", async () => { try{ await navigator.clipboard.writeText(json.value); flash("Kopieret"); }catch(e){ json.select(); flash("Markeret – tryk Ctrl/Cmd+C"); } });
-document.getElementById("loadJson").addEventListener("click", () => {
+document.getElementById("copyJson")?.addEventListener("click", async () => { try{ await navigator.clipboard.writeText(json.value); flash("Kopieret"); }catch(e){ json.select(); flash("Markeret – tryk Ctrl/Cmd+C"); } });
+document.getElementById("loadJson")?.addEventListener("click", () => {
   try{ const d = normalize(JSON.parse(json.value)); if(!d) throw 0;
     draft = d.map(c => ({name:String(c.name||""), ...(okLogo(c.logo)?{logo:c.logo}:{}), ...(Array.isArray(c.markets)?{markets:c.markets.filter(m=>m in MARKETS)}:{}), links:{pre:String(c.links?.pre||""), insp:String(c.links?.insp||""), drop:String(c.links?.drop||"")}}));
     renderCfg(); flash("Indlæst – tryk Gem og luk"); }catch(e){ flash("Teksten kunne ikke læses"); }
