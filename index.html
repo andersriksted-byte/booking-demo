@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Book inspektion eller aflevering</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE: rolig, hjælpsom kundeservice – få ord, tydelige valg
+   IDEA: en indleveringsskranke på et værksted: vælg selskab, træk en "billet" for dit ærinde
+   PICTURE: selve flowet – store valgkort med en lille bil-tegning i toppen
+   COLOUR and TYPE: dyb petrol felt, hvid flade, orange signal som accent; Figtree
+   LAYOUT: én rolig kolonne, trin-indikator øverst, kort i grid der stakker på mobil */
+:root{color-scheme:light dark;
+--bg:light-dark(#f4f6f6,#0d1a1e);--card:light-dark(#fff,#13252b);--ink:light-dark(#10222a,#e8f0f1);
+--mute:light-dark(#5a6d73,#9db1b6);--line:light-dark(#dbe3e4,#24404a);
+--petrol:#0f4c5c;--petrol2:light-dark(#0f4c5c,#7cc4d4);--accent:#ff6b3d;--soft:light-dark(#e6f0f2,#18323a)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Figtree,system-ui,sans-serif;overflow-x:clip}
+.top{background:var(--petrol);color:#fff;padding:clamp(22px,3.5vw,44px) max(5vw,16px) clamp(70px,8vw,96px);position:relative;overflow:hidden}
+.top .in{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{font-weight:800;font-size:17px;display:flex;align-items:center;gap:10px}
+.langs{margin-left:auto;display:flex;gap:4px;flex-wrap:wrap;background:rgba(255,255,255,.1);border-radius:999px;padding:4px}
+.langs button{all:unset;cursor:pointer;width:44px;height:36px;display:grid;place-items:center;border-radius:999px;transition:background .15s}
+.langs button svg{width:28px;height:19px;border-radius:3px;display:block;box-shadow:0 0 0 1px rgba(0,0,0,.15);opacity:.7;transition:opacity .15s}
+.langs button:hover svg{opacity:1}
+.langs button[aria-pressed=true]{background:#fff}.langs button[aria-pressed=true] svg{opacity:1}
+.langs button:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.brand i{width:12px;height:12px;border-radius:50%;background:var(--accent);display:inline-block}
+.top h1{font-size:clamp(30px,4.6vw,46px);line-height:1.05;margin:18px 0 8px;text-wrap:balance;font-weight:800}
+.top p{margin:0;color:#cfe3e8;max-width:56ch}
+.car{position:absolute;right:max(4vw,12px);bottom:-6px;width:min(300px,38vw);opacity:.95;pointer-events:none}
+main{max-width:900px;margin:-56px auto 0;padding:0 max(5vw,16px) 48px;position:relative}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:clamp(20px,3.4vw,36px);box-shadow:0 10px 30px rgba(10,40,50,.08)}
+.steps{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 22px;padding:0;list-style:none}
+.steps li{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--mute);font-weight:500}
+.steps li b{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--line);font-size:13px}
+.steps li.on{color:var(--ink)}.steps li.on b{background:var(--petrol);border-color:var(--petrol);color:#fff}
+.steps li.done b{background:var(--soft);border-color:var(--petrol2);color:var(--petrol2)}
+.steps li+li::before{content:"";width:22px;height:2px;background:var(--line);margin-right:2px}
+h2{font-size:24px;line-height:1.2;margin:0 0 6px}
+.sub{color:var(--mute);margin:0 0 20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,180px),1fr));gap:12px}
+.co{all:unset;box-sizing:border-box;cursor:pointer;border:1.5px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px;background:var(--card);transition:border-color .15s,transform .15s,box-shadow .15s}
+.co:hover{box-shadow:0 8px 20px rgba(10,40,50,.12)}
+.logo{height:84px;border-radius:10px;background:#fff;border:1px solid light-dark(#eef2f3,transparent);display:grid;place-items:center;padding:12px;overflow:hidden}
+.logo img{max-width:100%;max-height:60px;object-fit:contain;display:block}
+.logo.mg{border:0;color:#fff;font-weight:800;font-size:26px;letter-spacing:.02em}
+.co .nm{font-weight:600;font-size:15px;line-height:1.3;text-align:center;padding:0 4px 4px}
+.mini{height:34px;width:72px;border-radius:7px;background:#fff;display:grid;place-items:center;padding:4px;flex:none}
+.mini img{max-width:100%;max-height:26px;object-fit:contain}
+.mini.mg{color:#fff;font-weight:800;font-size:14px;width:40px}
+.lg{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.lg .prev{height:48px;width:120px;border:1px dashed var(--line);border-radius:8px;background:#fff;display:grid;place-items:center;padding:4px;color:#8a9a9f;font-size:13px}
+.lg .prev img{max-width:100%;max-height:40px;object-fit:contain}
+.rl{font-size:14px;font-weight:600;color:var(--mute)}
+.mk{display:flex;flex-wrap:wrap;gap:6px}
+.mk label{display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:4px 12px 4px 8px;border:1.5px solid var(--line);border-radius:999px;cursor:pointer;font-size:14px;font-weight:600;color:var(--ink)}
+.mk label:has(input:checked){border-color:var(--petrol2);background:var(--soft)}
+.mk input{width:18px;height:18px;margin:0;accent-color:var(--petrol)}
+.mk svg{width:21px;height:14px;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.15)}
+.order{margin:6px 0 16px;border:1px solid var(--line);border-radius:14px;padding:12px 16px}
+.order summary{cursor:pointer;font-weight:700;min-height:32px;display:flex;align-items:center}
+.olist{list-style:none;margin:0;padding:0;display:grid;gap:6px;max-height:420px;overflow:auto}
+.olist li{display:flex;align-items:center;gap:10px;padding:6px 8px 6px 10px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);cursor:grab}
+.olist li.cur{border-color:var(--petrol2);background:var(--soft)}
+.olist li.over{border-color:var(--accent);border-style:dashed}.olist li.drag{opacity:.45}
+.olist .grip{color:var(--mute);letter-spacing:-2px;font-size:14px}.olist .on{color:var(--mute);font-size:14px;width:2em;text-align:right;flex:none}
+.olist .onm{flex:1;font-weight:600;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.olist .ar{min-height:36px;width:40px;padding:0;flex:none}
+.hint{margin:4px 0 10px;font-size:14px;color:var(--mute)}
+.paste{cursor:pointer}.paste:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+dialog.drop .cfg{border-color:var(--accent);border-style:dashed}
+.lg input[type=file]{width:auto;padding:6px;font-size:14px}
+.co:hover{border-color:var(--petrol2);transform:translateY(-2px)}
+.co:focus-visible,.opt:focus-visible,.btn:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.co[hidden]{display:none}
+.chosen{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--soft);border-radius:12px;padding:10px 14px;margin:0 0 22px;font-size:15px}
+.chosen b{font-weight:700}
+.link{all:unset;cursor:pointer;color:var(--petrol2);font-weight:600;text-decoration:underline;text-underline-offset:3px;margin-left:auto}
+.grp{font-size:14px;font-weight:600;color:var(--mute);margin:22px 0 10px}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.opts.one{grid-template-columns:minmax(0,1fr)}
+.opt{display:flex;gap:14px;align-items:flex-start;text-decoration:none;color:inherit;border:1.5px solid var(--line);border-radius:14px;padding:18px;background:var(--card);cursor:pointer;transition:border-color .15s,transform .15s;font:inherit;text-align:left;width:100%}
+.opt:hover{border-color:var(--accent);transform:translateY(-2px)}
+.opt svg{flex:none;width:44px;height:44px}
+.opt h3{margin:0 0 6px;font-size:18px}
+.dur{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--petrol2);background:var(--soft);border-radius:999px;padding:3px 10px 3px 8px;margin:0 0 8px;white-space:nowrap}
+.dur svg{width:15px;height:15px;flex:none}
+.opt p{margin:0;color:var(--mute);font-size:15px}
+.opt .go{margin-top:10px;font-weight:600;color:var(--accent);font-size:15px}
+.opt.miss .go{color:var(--mute)}
+.frame{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;height:min(80vh,900px);min-height:520px}.frame iframe{border:0;width:100%;height:100%;display:block}
+.lbl{display:block;font-weight:600;font-size:15px;margin:0 0 8px}
+.pick{display:flex;gap:10px;flex-wrap:wrap}
+.pick select{flex:1 1 280px;font:inherit;font-size:17px;min-height:52px;padding:10px 44px 10px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%23ff6b3d' stroke-width='2.5'/%3E%3C/svg%3E") no-repeat right 16px center;color:var(--ink);appearance:none;cursor:pointer}
+.pick select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.pick .btn{min-height:52px;padding:10px 24px}.btn:disabled{opacity:.45;cursor:not-allowed}
+.selcard{margin-top:16px;max-width:260px}
+.note{margin-top:16px;padding:12px 14px;border-radius:12px;border:1.5px dashed var(--accent);font-size:15px;display:none}
+.note.show{display:block}
+footer{max-width:900px;margin:0 auto;padding:0 max(5vw,16px) 40px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--mute);font-size:14px}
+.btn{font:inherit;font-weight:600;border-radius:10px;padding:10px 16px;min-height:44px;cursor:pointer;border:1.5px solid var(--line);background:var(--card);color:var(--ink)}
+.btn.pri{background:var(--petrol);border-color:var(--petrol);color:#fff}
+.btn.sm{min-height:36px;padding:6px 12px;font-size:14px}
+/* opsætning */
+dialog{border:0;border-radius:18px;padding:0;width:min(860px,94vw);max-height:90vh;background:var(--card);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.35)}
+dialog::backdrop{background:rgba(8,25,30,.55)}
+.dh{padding:20px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px;position:sticky;top:0;background:var(--card);z-index:1}
+.dh h2{margin:0;font-size:20px}
+.db{padding:20px 24px}
+.cfg{border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.cfg .row{display:grid;grid-template-columns:150px minmax(0,1fr);gap:10px;align-items:center;margin-bottom:8px}
+.cfg label{font-size:14px;font-weight:600;color:var(--mute)}
+input,textarea{font:inherit;font-size:16px;width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)}
+textarea{min-height:120px;font-family:ui-monospace,monospace;font-size:13px}
+.cfg .acts{display:flex;justify-content:flex-end}
+.df{padding:16px 24px;border-top:1px solid var(--line);display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;position:sticky;bottom:0;background:var(--card)}
+.df .l{margin-right:auto;display:flex;gap:10px;flex-wrap:wrap}
+.toast{font-size:14px;color:var(--petrol2);align-self:center}
+.fade{animation:f .25s ease}
+@keyframes f{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.fade{animation:none}.co,.opt{transition:none}}
+@media(max-width:600px){.opts{grid-template-columns:minmax(0,1fr)}.car{display:none}.cfg .row{grid-template-columns:minmax(0,1fr);gap:4px}.steps li+li::before{width:10px}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="in"><div class="langs" id="langs" role="group" aria-label="Sprog / Language"></div></div>
+  <div style="max-width:900px;margin:0 auto">
+    <h1 data-t="h1">Book inspektion eller aflevering af din leasingbil</h1>
+  </div>
+  <svg class="car" viewBox="0 0 300 110" aria-hidden="true">
+    <ellipse cx="150" cy="102" rx="135" ry="7" fill="#08323d"/>
+    <path d="M22 78c0-12 8-20 22-22l40-6 34-24c8-6 18-8 28-8h52c12 0 22 4 30 12l22 22 26 4c10 2 16 10 16 20v8H22z" fill="#e8f2f4"/>
+    <path d="M124 30c6-4 12-6 20-6h46c9 0 16 3 22 9l15 16H96z" fill="#0f4c5c" opacity=".55"/>
+    <path d="M160 24v26" stroke="#e8f2f4" stroke-width="4"/>
+    <path d="M22 86h256" stroke="#c6dade" stroke-width="3"/>
+    <rect x="262" y="66" width="14" height="7" rx="3" fill="#ff6b3d"/>
+    <circle cx="80" cy="88" r="17" fill="#10222a"/><circle cx="80" cy="88" r="7" fill="#9db1b6"/>
+    <circle cx="226" cy="88" r="17" fill="#10222a"/><circle cx="226" cy="88" r="7" fill="#9db1b6"/>
+  </svg>
+</header>
+
+<main>
+  <section class="panel" id="app" aria-live="polite"></section>
+</main>
+
+<footer>
+  <span data-t="foot">Demo – bookinglinks og logoer indsættes under Opsætning.</span>
+  <button class="btn sm" id="openCfg" type="button" data-t="setup">Opsætning</button>
+</footer>
+
+<dialog id="cfg">
+  <div class="dh"><h2>Opsætning af selskaber og links</h2><button class="btn sm" type="button" id="closeCfg">Luk</button></div>
+  <div class="db">
+    <p class="sub">Vælg et selskab i listen og indsæt bookinglinket for hver kombination af leasingselskab og bookingtype, og upload evt. selskabets logo (PNG, JPG eller SVG). Felter uden link vises som "link mangler" i flowet. Ændringer gemmes i denne browser.</p>
+    <div id="cfgList"></div>
+    <button class="btn" type="button" id="addCo">+ Tilføj leasingselskab</button>
+    <details style="margin-top:20px">
+      <summary style="cursor:pointer;font-weight:600">Del opsætningen med kunderne (GitHub)</summary>
+      <p class="sub" style="margin-top:10px" id="srcInfo"></p>
+      <ol class="sub" style="padding-left:20px;margin-top:0">
+        <li>Tryk <b>Gem og luk</b>, åbn Opsætning igen og tryk <b>Hent opsætningsfil</b>. Du får filen <code>opsaetning.json</code>.</li>
+        <li>På GitHub: åbn dit repository, vælg <b>Add file → Upload files</b>, træk filen ind og tryk <b>Commit changes</b>. Findes filen i forvejen, bliver den erstattet.</li>
+        <li>Efter 1–2 minutter ser alle, der åbner siden, dine logoer, links, markeder og rækkefølge.</li>
+      </ol>
+      <div style="display:flex;gap:10px;margin:0 0 14px;flex-wrap:wrap"><button class="btn sm pri" type="button" id="dlJson">Hent opsætningsfil</button></div>
+      <p class="sub" style="margin:0 0 8px">Du kan også kopiere opsætningen som tekst og indsætte den på en anden computer:</p>
+      <textarea id="json" spellcheck="false"></textarea>
+      <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap"><button class="btn sm" type="button" id="copyJson">Kopiér</button><button class="btn sm" type="button" id="loadJson">Indlæs fra feltet</button></div>
+    </details>
+  </div>
+  <div class="df">
+    <div class="l"><button class="btn" type="button" id="reset">Nulstil til standard</button></div>
+    <span class="toast" id="toast"></span>
+    <button class="btn pri" type="button" id="save">Gem og luk</button>
+  </div>
+</dialog>
+
+<script>
+{
+/* Vis bookingen inde i siden (true) eller åbn den i et nyt vindue (false) */
+const EMBED = true;
+
+/* ===== STANDARDOPSÆTNING – ret navne og indsæt links her ===== */
+const DEFAULT = [
+  {name:"Volkswagen Semler Finans", links:{pre:"", insp:"", drop:""}},
+  {name:"Drivalia Lease Danmark A/S", links:{pre:"", insp:"", drop:""}},
+  {name:"Nordania Finans", links:{pre:"", insp:"", drop:""}},
+  {name:"Nordania Leasing A/S", links:{pre:"", insp:"", drop:""}},
+  {name:"Santander Consumer Bank", links:{pre:"", insp:"", drop:""}},
+  {name:"Arval", links:{pre:"", insp:"", drop:""}},
+  {name:"Autolease", links:{pre:"", insp:"", drop:""}},
+  {name:"Total Bilsalg hos os – Ballerup, Køge, Langeskov eller Fredericia", links:{pre:"", insp:"", drop:""}},
+  {name:"First Lease", links:{pre:"", insp:"", drop:""}},
+  {name:"Mercedes-Benz Finans", links:{pre:"", insp:"", drop:""}},
+  {name:"AL Finans", links:{pre:"", insp:"", drop:""}},
+  {name:"Krone Kapital", links:{pre:"", insp:"", drop:""}},
+  {name:"CA Auto Finance", links:{pre:"", insp:"", drop:""}},
+  {name:"Ikano Bank Leasing", links:{pre:"", insp:"", drop:""}},
+  {name:"LETO Leasing", links:{pre:"", insp:"", drop:""}},
+  {name:"Opendo", links:{pre:"", insp:"", drop:""}},
+  {name:"Jyske Finans", links:{pre:"", insp:"", drop:""}},
+  {name:"Releasing - Ballerup", links:{pre:"", insp:"", drop:""}},
+  {name:"Releasing - Køge", links:{pre:"", insp:"", drop:""}},
+  {name:"Releasing - Fredericia", links:{pre:"", insp:"", drop:""}}
+];
+/* ============================================================== */
+
+const TYPES = {
+  pre:{title:"Pre-inspektion", time:"", text:"Få bilen gennemgået inden aflevering, så du kender eventuelle skader og kan nå at udbedre dem.",
+       icon:'<circle cx="20" cy="20" r="12" fill="none" stroke="var(--petrol2)" stroke-width="4"/><path d="M29 29l10 10" stroke="var(--accent)" stroke-width="5" stroke-linecap="round"/>'},
+  insp:{title:"Inspektion", time:"Tager ca. 40 minutter", text:"Aflever bilen og gennemgå den sammen med en inspektør på stedet.",
+       icon:'<rect x="6" y="6" width="32" height="36" rx="5" fill="none" stroke="var(--petrol2)" stroke-width="4"/><path d="M14 24l6 6 11-12" fill="none" stroke="var(--accent)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>'},
+  drop:{title:"Drop-off", time:"Tager ca. 5 minutter", text:"Aflever bil og nøgler uden aftale om fremmøde. Bilen inspiceres efterfølgende.",
+       icon:'<circle cx="16" cy="18" r="9" fill="none" stroke="var(--petrol2)" stroke-width="4"/><path d="M23 23l15 15M32 32l5-5M28 36l4-4" stroke="var(--accent)" stroke-width="4.5" stroke-linecap="round"/>'}
+};
+
+const I18N = {
+ da:{noMarket:"Der er ingen leasingselskaber på dette marked endnu.", setup:"Opsætning", name:"Dansk", h1:"Book inspektion eller aflevering af din leasingbil", intro:"Vælg dit leasingselskab og hvad du skal have gjort – så sender vi dig direkte til den rigtige booking.",
+  s1:"Leasingselskab", s2:"Bookingtype", s3:"Booking", q1:"Hvem leaser du bilen hos?", q1sub:"Vælg dit leasingselskab for at se de bookingmuligheder, der gælder for dig.",
+  search:"Søg efter leasingselskab", none:"Ingen leasingselskaber endnu – tilføj dem under Opsætning.", co:"Leasingselskab", change:"Skift",
+  q2:"Hvad vil du booke?", subEmbed:"Bookingen åbner herunder, når du har valgt.", subGo:"Du sendes direkte videre til bookingsiden for dit valg.",
+  g1:"Før aflevering", g2:"Aflevering – vælg form", bookHere:"Book her →", goBook:"Gå til booking →", missing:"Link mangler",
+  missNote:(t,c)=>`Der er endnu ikke indsat et bookinglink for ${t} hos ${c}. Tilføj det under Opsætning nederst på siden.`,
+  changeType:"Skift bookingtype", notShown:"Vises bookingen ikke?", openNew:"Åbn den i et nyt vindue", foot:"Demo – bookinglinks og logoer indsættes under Opsætning.",
+  pre:["Pre-inspektion","","Få bilen gennemgået inden aflevering, så du kender eventuelle skader og kan nå at udbedre dem."],
+  insp:["Inspektion","Tager ca. 40 minutter","Aflever bilen og gennemgå den sammen med en inspektør på stedet."],
+  drop:["Drop-off","Tager ca. 5 minutter","Aflever bil og nøgler uden aftale om fremmøde. Bilen inspiceres efterfølgende."]},
+ sv:{noMarket:"Det finns inga leasingbolag på den här marknaden ännu.", setup:"Inställningar", name:"Svenska", h1:"Boka besiktning eller återlämning av din leasingbil", intro:"Välj ditt leasingbolag och vad du behöver göra – så skickar vi dig direkt till rätt bokning.",
+  s1:"Leasingbolag", s2:"Bokningstyp", s3:"Bokning", q1:"Vilket bolag leasar du bilen genom?", q1sub:"Välj ditt leasingbolag för att se de bokningsalternativ som gäller för dig.",
+  search:"Sök efter leasingbolag", none:"Inga leasingbolag ännu – lägg till dem under Inställningar.", co:"Leasingbolag", change:"Byt",
+  q2:"Vad vill du boka?", subEmbed:"Bokningen öppnas nedanför när du har valt.", subGo:"Du skickas direkt vidare till bokningssidan för ditt val.",
+  g1:"Före återlämning", g2:"Återlämning – välj sätt", bookHere:"Boka här →", goBook:"Gå till bokning →", missing:"Länk saknas",
+  missNote:(t,c)=>`Det finns ännu ingen bokningslänk för ${t} hos ${c}. Lägg till den under Inställningar längst ner på sidan.`,
+  changeType:"Byt bokningstyp", notShown:"Visas inte bokningen?", openNew:"Öppna den i ett nytt fönster", foot:"Demo – bokningslänkar och logotyper läggs in under Inställningar.",
+  pre:["Förbesiktning","","Få bilen genomgången före återlämning, så att du känner till eventuella skador och hinner åtgärda dem."],
+  insp:["Besiktning","Tar ca 40 minuter","Lämna tillbaka bilen och gå igenom den tillsammans med en besiktningsman på plats."],
+  drop:["Drop-off","Tar ca 5 minuter","Lämna bil och nycklar utan att vara på plats. Bilen besiktigas i efterhand."]},
+ no:{noMarket:"Det finnes ingen leasingselskaper i dette markedet ennå.", setup:"Oppsett", name:"Norsk", h1:"Bestill inspeksjon eller innlevering av leasingbilen din", intro:"Velg leasingselskapet ditt og hva du trenger – så sender vi deg rett til riktig bestilling.",
+  s1:"Leasingselskap", s2:"Bestillingstype", s3:"Bestilling", q1:"Hvem leaser du bilen hos?", q1sub:"Velg leasingselskapet ditt for å se bestillingsmulighetene som gjelder for deg.",
+  search:"Søk etter leasingselskap", none:"Ingen leasingselskaper ennå – legg dem til under Oppsett.", co:"Leasingselskap", change:"Bytt",
+  q2:"Hva vil du bestille?", subEmbed:"Bestillingen åpnes nedenfor når du har valgt.", subGo:"Du sendes rett videre til bestillingssiden for valget ditt.",
+  g1:"Før innlevering", g2:"Innlevering – velg form", bookHere:"Bestill her →", goBook:"Gå til bestilling →", missing:"Lenke mangler",
+  missNote:(t,c)=>`Det er ennå ikke lagt inn en bestillingslenke for ${t} hos ${c}. Legg den til under Oppsett nederst på siden.`,
+  changeType:"Bytt bestillingstype", notShown:"Vises ikke bestillingen?", openNew:"Åpne den i et nytt vindu", foot:"Demo – bestillingslenker og logoer legges inn under Oppsett.",
+  pre:["Forhåndsinspeksjon","","Få bilen gjennomgått før innlevering, slik at du kjenner til eventuelle skader og rekker å utbedre dem."],
+  insp:["Inspeksjon","Tar ca. 40 minutter","Lever bilen og gå gjennom den sammen med en inspektør på stedet."],
+  drop:["Drop-off","Tar ca. 5 minutter","Lever bil og nøkler uten å være til stede. Bilen inspiseres i etterkant."]},
+ fi:{noMarket:"Tällä markkinalla ei ole vielä leasingyhtiöitä.", setup:"Asetukset", name:"Suomi", h1:"Varaa leasingautosi tarkastus tai palautus", intro:"Valitse leasingyhtiösi ja mitä tarvitset – ohjaamme sinut suoraan oikeaan varaukseen.",
+  s1:"Leasingyhtiö", s2:"Varaustyyppi", s3:"Varaus", q1:"Mistä yhtiöstä leasaat autosi?", q1sub:"Valitse leasingyhtiösi nähdäksesi sinua koskevat varausvaihtoehdot.",
+  search:"Hae leasingyhtiötä", none:"Ei vielä leasingyhtiöitä – lisää ne kohdassa Asetukset.", co:"Leasingyhtiö", change:"Vaihda",
+  q2:"Mitä haluat varata?", subEmbed:"Varaus avautuu alle, kun olet tehnyt valinnan.", subGo:"Sinut ohjataan suoraan valintasi varaussivulle.",
+  g1:"Ennen palautusta", g2:"Palautus – valitse tapa", bookHere:"Varaa tästä →", goBook:"Siirry varaukseen →", missing:"Linkki puuttuu",
+  missNote:(t,c)=>`Palvelulle ${t} ei ole vielä lisätty varauslinkkiä yhtiölle ${c}. Lisää se kohdassa Asetukset sivun alareunassa.`,
+  changeType:"Vaihda varaustyyppiä", notShown:"Eikö varaus näy?", openNew:"Avaa se uudessa ikkunassa", foot:"Demo – varauslinkit ja logot lisätään kohdassa Asetukset.",
+  pre:["Ennakkotarkastus","","Tarkastuta auto ennen palautusta, niin tiedät mahdolliset vauriot ja ehdit korjata ne."],
+  insp:["Tarkastus","Kestää noin 40 minuuttia","Palauta auto ja käy se läpi yhdessä tarkastajan kanssa paikan päällä."],
+  drop:["Drop-off","Kestää noin 5 minuuttia","Jätä auto ja avaimet ilman, että sinun tarvitsee olla paikalla. Auto tarkastetaan jälkikäteen."]},
+ en:{noMarket:"There are no leasing companies in this market yet.", setup:"Settings", name:"English", h1:"Book an inspection or return of your lease car", intro:"Choose your leasing company and what you need – we'll take you straight to the right booking.",
+  s1:"Leasing company", s2:"Booking type", s3:"Booking", q1:"Who do you lease your car from?", q1sub:"Choose your leasing company to see the booking options that apply to you.",
+  search:"Search for leasing company", none:"No leasing companies yet – add them under Settings.", co:"Leasing company", change:"Change",
+  q2:"What would you like to book?", subEmbed:"The booking opens below once you've chosen.", subGo:"You'll be taken straight to the booking page for your choice.",
+  g1:"Before return", g2:"Return – choose method", bookHere:"Book here →", goBook:"Go to booking →", missing:"Link missing",
+  missNote:(t,c)=>`No booking link has been added yet for ${t} at ${c}. Add it under Settings at the bottom of the page.`,
+  changeType:"Change booking type", notShown:"Booking not showing?", openNew:"Open it in a new window", foot:"Demo – booking links and logos are added under Settings.",
+  pre:["Pre-inspection","","Have the car checked before returning it, so you know about any damage and have time to fix it."],
+  insp:["Inspection","Takes approx. 40 minutes","Return the car and go through it together with an inspector on site."],
+  drop:["Drop-off","Takes approx. 5 minutes","Leave the car and keys without having to be present. The car is inspected afterwards."]}
+};
+const LANGS = ["da","sv","no","fi","en"];
+let lang = "da"; try{ const v = localStorage.getItem("booking-demo-lang"); if(LANGS.includes(v)) lang = v; }catch(e){}
+const L = () => I18N[lang];
+const MARKETS = {da:"Danmark", sv:"Sverige", no:"Norge", fi:"Finland", en:"Engelsk version"};
+const avail = c => !Array.isArray(c.markets) || !c.markets.length || c.markets.includes(lang);
+const TT = k => { const [title,time,text] = L()[k]; return {...TYPES[k], title, time, text}; };
+function applyStatic(){
+  document.documentElement.lang = lang === "no" ? "nb" : lang;
+  for(const el of document.querySelectorAll("[data-t]")) el.textContent = L()[el.dataset.t];
+  for(const b of document.querySelectorAll("#langs button")) b.setAttribute("aria-pressed", b.dataset.l === lang);
+}
+const FLAGS = {
+ da:'<rect width="30" height="20" fill="#C8102E"/><rect x="9" width="3.5" height="20" fill="#fff"/><rect y="8.25" width="30" height="3.5" fill="#fff"/>',
+ sv:'<rect width="30" height="20" fill="#006AA7"/><rect x="9" width="3.5" height="20" fill="#FECC00"/><rect y="8.25" width="30" height="3.5" fill="#FECC00"/>',
+ no:'<rect width="30" height="20" fill="#BA0C2F"/><rect x="8" width="5.5" height="20" fill="#fff"/><rect y="7.25" width="30" height="5.5" fill="#fff"/><rect x="9.25" width="3" height="20" fill="#00205B"/><rect y="8.5" width="30" height="3" fill="#00205B"/>',
+ fi:'<rect width="30" height="20" fill="#fff"/><rect x="8" width="5.5" height="20" fill="#002F6C"/><rect y="7.25" width="30" height="5.5" fill="#002F6C"/>',
+ en:'<rect width="30" height="20" fill="#012169"/><path d="M0 0L30 20M30 0L0 20" stroke="#fff" stroke-width="4"/><path d="M0 0L30 20M30 0L0 20" stroke="#C8102E" stroke-width="1.4"/><rect x="12" width="6" height="20" fill="#fff"/><rect y="7" width="30" height="6" fill="#fff"/><rect x="13.3" width="3.4" height="20" fill="#C8102E"/><rect y="8.3" width="30" height="3.4" fill="#C8102E"/>'
+};
+document.getElementById("langs").innerHTML = LANGS.map(l=>`<button type="button" data-l="${l}" lang="${l==="no"?"nb":l}" title="${I18N[l].name}" aria-label="${I18N[l].name}"><svg viewBox="0 0 30 20" aria-hidden="true">${FLAGS[l]}</svg></button>`).join("");
+document.getElementById("langs").addEventListener("click", e => { const b = e.target.closest("[data-l]"); if(!b) return; lang = b.dataset.l; try{ localStorage.setItem("booking-demo-lang", lang); }catch(err){} if(state.co!=null && companies[state.co] && !avail(companies[state.co])) state = {step:1, co:null}; applyStatic(); render(); });
+
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const okUrl = u => /^https?:\/\//i.test(String(u||"").trim());
+const clone = o => JSON.parse(JSON.stringify(o));
+const KEY = "booking-demo-config-v2";
+
+const CONFIG_FILE = "opsaetning.json";
+function normalize(d){
+  const arr = Array.isArray(d) ? d : (d && Array.isArray(d.companies) ? d.companies : null); if(!arr) return null;
+  return arr.filter(c => c && typeof c === "object").map(c => ({name:String(c.name||""),
+    ...(okLogo(c.logo)?{logo:String(c.logo)}:{}),
+    ...(Array.isArray(c.markets)&&c.markets.length?{markets:c.markets.map(String).filter(m=>["da","sv","no","fi","en"].includes(m))}:{}),
+    links:{pre:String(c.links?.pre||""), insp:String(c.links?.insp||""), drop:String(c.links?.drop||"")}}));
+}
+let localSavedAt = 0, source = "standard", fileUpdated = null;
+function load(){
+  try{ const raw = localStorage.getItem(KEY); if(raw){ const d = JSON.parse(raw); const list = normalize(d);
+    if(list){ localSavedAt = Array.isArray(d) ? 1 : Date.parse(d.savedAt)||1; source = "lokal"; return list; } } }catch(e){}
+  return clone(DEFAULT);
+}
+function store(d){ try{ localSavedAt = Date.now(); localStorage.setItem(KEY, JSON.stringify({savedAt:new Date(localSavedAt).toISOString(), companies:d})); source = "lokal"; return true; }catch(e){ return false; } }
+async function loadFile(){
+  try{
+    const r = await fetch(CONFIG_FILE + "?t=" + Date.now(), {cache:"no-store"}); if(!r.ok) return;
+    const d = await r.json(), list = normalize(d); if(!list || !list.length) return;
+    fileUpdated = Date.parse(d.updated) || 0;
+    if(!localSavedAt || fileUpdated >= localSavedAt){ companies = list; source = "fil";
+      if(state.co!=null && !companies[state.co]) state = {step:1, co:null}; render(); }
+  }catch(e){}
+}
+
+let companies = load();
+let state = {step:1, co:null};
+const app = document.getElementById("app");
+
+function stepsHtml(){
+  const s = state.step;
+  const li = (n,t) => `<li class="${s===n?'on':s>n?'done':''}"><b>${s>n?'✓':n}</b>${t}</li>`;
+  return `<ol class="steps">${li(1,L().s1)}${li(2,L().s2)}${li(3,L().s3)}</ol>`;
+}
+const HUES = ["#0f4c5c","#7a2e4d","#2f5d3a","#3b3f8f","#8a4b16","#1f6f8b","#5b3a7a","#9a2f2f"];
+const hue = n => { let h=0; for(const ch of String(n)) h=(h*31+ch.charCodeAt(0))>>>0; return HUES[h%HUES.length]; };
+const okLogo = l => /^data:image\/(png|jpeg|webp|gif|avif|svg\+xml);base64,/i.test(String(l||"")) || /^https:\/\/[^\s"'<>]+$/i.test(String(l||""));
+const logoBox = (c, cls) => okLogo(c.logo) ? `<span class="${cls}"><img src="${esc(c.logo)}" alt=""></span>` : `<span class="${cls} mg" style="background:${hue(c.name)}">${initials(c.name)}</span>`;
+const initials = n => esc(String(n).trim().split(/\s+/).slice(0,2).map(w=>w[0]||"").join("").toUpperCase());
+
+function optCard(key){
+  const c = companies[state.co], t = TT(key), url = (c.links||{})[key];
+  const inner = `<svg viewBox="0 0 44 44" aria-hidden="true">${t.icon}</svg><div><h3>${t.title}</h3>${t.time?`<span class="dur"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 4.5V8l2.5 1.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>${t.time}</span>`:""}<p>${t.text}</p>`;
+  if(okUrl(url)) return `<a class="opt" href="${esc(url.trim())}" target="_blank" rel="noopener" data-go="${key}">${inner}<div class="go">${EMBED?L().bookHere:L().goBook}</div></div></a>`;
+  return `<button class="opt miss" type="button" data-miss="${key}">${inner}<div class="go">${L().missing}</div></div></button>`;
+}
+
+function render(){
+  if(state.step===3 && state.type && companies[state.co]){
+    const c = companies[state.co], t = TT(state.type), url = c.links[state.type].trim();
+    app.innerHTML = `${stepsHtml()}<div class="fade">
+      <div class="chosen">${logoBox(c,"mini")}<span><b>${esc(c.name)}</b> · ${t.title}</span><button class="link" type="button" id="back2">${L().changeType}</button></div>
+      <div class="frame"><iframe src="${esc(url)}" title="Booking: ${esc(t.title)}" loading="eager" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+      <p class="sub" style="margin:12px 0 0;font-size:14px">${L().notShown} <a href="${esc(url)}" target="_blank" rel="noopener">${L().openNew}</a>.</p></div>`;
+    return;
+  }
+  if(state.step===1 || state.co===null || !companies[state.co]){
+    state.step = 1;
+    app.innerHTML = `${stepsHtml()}<div class="fade"><h2>${L().q1}</h2><p class="sub">${L().q1sub}</p>
+      <input id="q" type="search" placeholder="${L().search}" aria-label="${L().search}" style="margin-bottom:14px" value="${esc(state.q||"")}">
+      <div class="grid">${companies.map((c,i)=>avail(c)?`<button class="co" type="button" data-co="${i}" data-n="${esc(c.name.toLowerCase())}">${logoBox(c,"logo")}<span class="nm">${esc(c.name)}</span></button>`:"").join("") || `<p class="sub">${companies.length?L().noMarket:L().none}</p>`}</div></div>`;
+  } else {
+    const c = companies[state.co];
+    app.innerHTML = `${stepsHtml()}<div class="fade">
+      <div class="chosen">${logoBox(c,"mini")}${L().co}: <b>${esc(c.name)}</b><button class="link" type="button" id="back">${L().change}</button></div>
+      <h2>${L().q2}</h2><p class="sub">${EMBED?L().subEmbed:L().subGo}</p>
+      <div class="grp">${L().g1}</div><div class="opts one">${optCard("pre")}</div>
+      <div class="grp">${L().g2}</div><div class="opts">${optCard("insp")}${optCard("drop")}</div>
+      <div class="note" id="note"></div></div>`;
+  }
+}
+
+app.addEventListener("change", e => {
+  if(e.target.id!=="sel") return; state.sel = e.target.value===""?null:+e.target.value; render(); document.getElementById("sel")?.focus();
+});
+app.addEventListener("input", e => {
+  if(e.target.id!=="q") return; state.q = e.target.value; const q = state.q.trim().toLowerCase();
+  app.querySelectorAll(".co").forEach(b => b.hidden = q && !b.dataset.n.includes(q));
+});
+app.addEventListener("click", e => {
+  if(e.target.closest("#next") && state.sel!=null){ state = {step:2, co:state.sel, sel:state.sel}; render(); app.querySelector(".opt")?.focus(); return; }
+  const co = e.target.closest("[data-co]");
+  if(co){ state = {step:2, co:+co.dataset.co}; render(); app.querySelector(".opt")?.focus(); return; }
+  if(e.target.closest("#back")){ state = {step:1, co:null, sel:state.co}; render(); return; }
+  const miss = e.target.closest("[data-miss]");
+  if(miss){ const n = document.getElementById("note");
+    n.textContent = L().missNote(TT(miss.dataset.miss).title, companies[state.co].name);
+    n.classList.add("show"); return; }
+  if(e.target.closest("#back2")){ state = {step:2, co:state.co}; render(); return; }
+  const a = e.target.closest("a.opt");
+  if(a && EMBED){ e.preventDefault(); state = {step:3, co:state.co, type:a.dataset.go}; render(); app.scrollIntoView({behavior:"smooth", block:"start"}); return; }
+  if(a){ state.step = 3; const s = app.querySelector(".steps"); if(s) s.outerHTML = stepsHtml(); }
+});
+
+/* ===== Opsætning ===== */
+const dlg = document.getElementById("cfg"), list = document.getElementById("cfgList"), toast = document.getElementById("toast"), json = document.getElementById("json");
+let draft = [];
+const flash = t => { toast.textContent = t; clearTimeout(flash.t); flash.t = setTimeout(()=>toast.textContent="", 2600); };
+
+let cs = 0;
+const optLabel = c => (c.name||"(uden navn)") + (Array.isArray(c.markets)&&c.markets.length ? " (kun " + c.markets.map(m=>({da:"DK",sv:"SE",no:"NO",fi:"FI",en:"EN"})[m]).join(", ") + ")" : "") + (Object.values(c.links||{}).filter(okUrl).length===3 ? "" : " – mangler links");
+function renderCfg(){
+  if(cs >= draft.length) cs = draft.length - 1; if(cs < 0) cs = 0;
+  const opts = draft.map((c,i)=>({c,i})).sort((x,y)=>x.c.name.localeCompare(y.c.name,"da"))
+    .map(({c,i})=>`<option value="${i}"${i===cs?" selected":""}>${esc(optLabel(c))}</option>`).join("");
+  const head = draft.length ? `<label class="lbl" for="cfgSel">Vælg det selskab, du vil redigere</label><div class="pick" style="margin-bottom:14px"><select id="cfgSel">${opts}</select></div>` : '<p class="sub">Ingen selskaber. Tilføj et herunder.</p>';
+  list.innerHTML = head + draft.map((c,i)=>({c,i})).filter(({i})=>i===cs).map(({c,i})=>`<div class="cfg">
+    <div class="row"><label for="n${i}">Navn</label><input id="n${i}" data-i="${i}" data-f="name" value="${esc(c.name)}"></div>
+    ${Object.keys(TYPES).map(k=>`<div class="row"><label for="${k}${i}">${TYPES[k].title}${k!=="pre"?" (aflevering)":""}</label><input id="${k}${i}" type="url" inputmode="url" placeholder="https://…" data-i="${i}" data-f="${k}" value="${esc((c.links||{})[k])}"></div>`).join("")}
+    <div class="row"><label for="l${i}">Logo</label><div class="lg"><span class="prev paste" tabindex="0" title="Klik her og tryk Ctrl+V / Cmd+V">${okLogo(c.logo)?`<img src="${esc(c.logo)}" alt="">`:"Sæt ind her"}</span><input id="l${i}" type="file" accept="image/*,.svg" data-logo="${i}">${okLogo(c.logo)?`<button class="btn sm" type="button" data-rmlogo="${i}">Fjern logo</button>`:""}</div></div>
+    <div class="row"><span class="rl">Vises på</span><div class="mk">${Object.keys(MARKETS).map(m=>`<label><input type="checkbox" data-mk="${m}" data-i="${i}"${Array.isArray(c.markets)&&c.markets.length&&!c.markets.includes(m)?"":" checked"}><svg viewBox="0 0 30 20" aria-hidden="true">${FLAGS[m]}</svg>${MARKETS[m]}</label>`).join("")}</div></div>
+    <p class="hint" style="margin-top:-2px">Fjern fluebenet ved de markeder, hvor selskabet ikke skal vises. Markedet følger det flag, kunden har valgt øverst på siden.</p>
+    <p class="hint">Kopiér logoet fra en hjemmeside (højreklik → <b>Kopiér billede</b>) og tryk <b>Ctrl+V</b> (Mac: <b>Cmd+V</b>), mens Opsætning er åben. Du kan også trække en billedfil herind.</p>
+    <div class="acts"><button class="btn sm" type="button" data-del="${i}">Fjern selskab</button></div></div>`).join("") + (draft.length > 1 ? `
+  <details class="order"${orderOpen?" open":""}><summary>Rækkefølge på forsiden</summary>
+    <p class="hint">Træk et selskab op eller ned, eller brug pilene. Rækkefølgen gælder for knapperne, kunden ser.</p>
+    <ol class="olist">${draft.map((c,i)=>`<li draggable="true" data-idx="${i}"${i===cs?' class="cur"':""}><span class="grip" aria-hidden="true">⋮⋮</span><span class="on">${i+1}.</span><span class="onm">${esc(c.name||"(uden navn)")}</span>
+      <button class="btn sm ar" type="button" data-mv="-1" data-idx="${i}" aria-label="Flyt ${esc(c.name)} op"${i===0?" disabled":""}>↑</button><button class="btn sm ar" type="button" data-mv="1" data-idx="${i}" aria-label="Flyt ${esc(c.name)} ned"${i===draft.length-1?" disabled":""}>↓</button></li>`).join("")}</ol>
+  </details>` : "");
+  json.value = JSON.stringify(draft, null, 2);
+}
+let orderOpen = false, dragFrom = null;
+function moveCo(from, to){
+  if(to < 0 || to >= draft.length || from === to) return;
+  const cur = draft[cs], [item] = draft.splice(from, 1); draft.splice(to, 0, item);
+  cs = draft.indexOf(cur); orderOpen = true; renderCfg();
+}
+list.addEventListener("toggle", e => { if(e.target.matches?.(".order")) orderOpen = e.target.open; }, true);
+list.addEventListener("click", e => {
+  const b = e.target.closest("[data-mv]"); if(!b) return;
+  const from = +b.dataset.idx, to = from + +b.dataset.mv; moveCo(from, to);
+  (list.querySelector(`[data-mv="${b.dataset.mv}"][data-idx="${to}"]:not([disabled])`) || list.querySelector(`li[data-idx="${to}"] [data-mv]:not([disabled])`))?.focus();
+});
+list.addEventListener("dragstart", e => { const li = e.target.closest?.(".olist li"); if(!li) return; dragFrom = +li.dataset.idx; li.classList.add("drag"); e.dataTransfer.effectAllowed = "move"; try{ e.dataTransfer.setData("text/plain", li.dataset.idx); }catch(err){} });
+list.addEventListener("dragover", e => { const li = e.target.closest?.(".olist li"); if(!li || dragFrom===null) return; e.preventDefault(); list.querySelectorAll(".olist li.over").forEach(x=>x.classList.remove("over")); li.classList.add("over"); });
+list.addEventListener("drop", e => { const li = e.target.closest?.(".olist li"); if(!li || dragFrom===null) return; e.preventDefault(); e.stopPropagation(); const f = dragFrom; dragFrom = null; moveCo(f, +li.dataset.idx); });
+list.addEventListener("dragend", () => { dragFrom = null; list.querySelectorAll(".olist li").forEach(x=>x.classList.remove("over","drag")); });
+function readData(file){ return new Promise((res,rej)=>{ const fr = new FileReader(); fr.onload = () => res(String(fr.result)); fr.onerror = rej; fr.readAsDataURL(file); }); }
+async function shrink(file){
+  let data = await readData(file);
+  if(/^data:application\/octet-stream|^data:;/.test(data) && /\.svg$/i.test(file.name)) data = data.replace(/^data:[^;]*;/, "data:image/svg+xml;");
+  try{
+    const img = await new Promise((res,rej)=>{ const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = data; });
+    let w = img.naturalWidth || 480, h = img.naturalHeight || 180;
+    const r = Math.min(1, 480/w, 180/h); w = Math.max(1, Math.round(w*r)); h = Math.max(1, Math.round(h*r));
+    const cv = document.createElement("canvas"); cv.width = w; cv.height = h; cv.getContext("2d").drawImage(img,0,0,w,h);
+    const out = cv.toDataURL("image/png"); if(out.length > 100) return out;
+  }catch(e){}
+  if(okLogo(data) && data.length < 600000) return data;
+  throw new Error("unreadable");
+}
+async function setLogoFrom(file){
+  if(!draft[cs]) return;
+  try{ draft[cs].logo = await shrink(file); renderCfg(); flash(`Logo sat ind for ${draft[cs].name} – husk Gem og luk`); }
+  catch(err){ flash("Billedet kunne ikke læses – prøv Kopiér billede igen eller brug en fil"); }
+}
+document.addEventListener("paste", e => { if(!dlg.open) return;
+  const cd = e.clipboardData; if(!cd || !draft[cs]) return;
+  const img = [...cd.items].find(it => it.kind==="file" && it.type.startsWith("image/"));
+  if(img){ e.preventDefault(); setLogoFrom(img.getAsFile()); return; }
+  const inText = e.target.matches && e.target.matches("input:not([type=file]),textarea");
+  const txt = (cd.getData("text/plain")||"").trim();
+  if(!inText && /^https:\/\/\S+\.(png|jpe?g|gif|webp|svg|avif)(\?\S*)?$/i.test(txt)){ e.preventDefault(); draft[cs].logo = txt; renderCfg(); flash("Logo-adresse sat ind – husk Gem og luk"); return; }
+  if(!inText) flash("Udklipsholderen indeholder ikke et billede – højreklik på logoet og vælg Kopiér billede");
+});
+dlg.addEventListener("dragover", e => { if([...(e.dataTransfer?.items||[])].some(i=>i.kind==="file")){ e.preventDefault(); dlg.classList.add("drop"); } });
+dlg.addEventListener("dragleave", e => { if(e.target===dlg) dlg.classList.remove("drop"); });
+dlg.addEventListener("drop", e => { dlg.classList.remove("drop"); const f = [...(e.dataTransfer?.files||[])].find(f=>f.type.startsWith("image/")||/\.svg$/i.test(f.name)); if(f){ e.preventDefault(); setLogoFrom(f); } });
+list.addEventListener("change", e => { if(e.target.id==="cfgSel"){ cs = +e.target.value; renderCfg(); document.getElementById("cfgSel")?.focus(); } });
+list.addEventListener("change", async e => {
+  const el = e.target.closest("[data-logo]"); if(!el || !el.files[0]) return;
+  try{ draft[+el.dataset.logo].logo = await shrink(el.files[0]); renderCfg(); flash("Logo tilføjet – husk Gem og luk"); }catch(err){ flash("Billedet kunne ikke læses – prøv at gemme logoet som PNG eller JPG"); }
+});
+list.addEventListener("input", e => {
+  const el = e.target; if(el.type==="file") return;
+  if(el.dataset.mk){ const c = draft[+el.dataset.i]; const on = [...list.querySelectorAll(`[data-mk][data-i="${el.dataset.i}"]`)].filter(x=>x.checked).map(x=>x.dataset.mk);
+    if(!on.length){ el.checked = true; flash("Selskabet skal vises på mindst ét marked – brug Fjern selskab for at slette det"); return; }
+    if(on.length===Object.keys(MARKETS).length) delete c.markets; else c.markets = on;
+    const o = document.querySelector(`#cfgSel option[value="${el.dataset.i}"]`); if(o) o.textContent = optLabel(c);
+    json.value = JSON.stringify(draft, null, 2); return; }
+  const i = +el.dataset.i, f = el.dataset.f; if(isNaN(i)) return;
+  if(f==="name"){ draft[i].name = el.value; const o = document.querySelector(`#cfgSel option[value="${i}"]`); if(o) o.textContent = optLabel(draft[i]); }
+  else { draft[i].links = draft[i].links||{}; draft[i].links[f] = el.value.trim(); }
+  json.value = JSON.stringify(draft, null, 2);
+});
+list.addEventListener("click", e => { const d = e.target.closest("[data-del]"); if(d){ draft.splice(+d.dataset.del,1); renderCfg(); }
+  const r = e.target.closest("[data-rmlogo]"); if(r){ delete draft[+r.dataset.rmlogo].logo; renderCfg(); } });
+
+document.getElementById("openCfg").addEventListener("click", () => { draft = clone(companies); cs = state.co ?? 0; orderOpen = false; renderCfg();
+  const fmt = t => new Date(t).toLocaleString("da-DK",{dateStyle:"short",timeStyle:"short"});
+  document.getElementById("srcInfo").textContent = source==="fil" ? `Siden viser lige nu opsætningsfilen fra GitHub (opdateret ${fileUpdated?fmt(fileUpdated):"ukendt"}). Det er den, kunderne ser.`
+    : source==="lokal" ? `Siden viser dine lokale ændringer fra denne browser (gemt ${localSavedAt>1?fmt(localSavedAt):"tidligere"}). Kunderne ser dem først, når du uploader en ny opsætningsfil.`
+    : "Der er ingen opsætningsfil på GitHub endnu. Kunderne ser kun selskabernes navne uden logoer og links."; try{ dlg.showModal(); }catch(err){ dlg.setAttribute("open",""); } });
+document.getElementById("closeCfg").addEventListener("click", () => dlg.close());
+document.getElementById("addCo").addEventListener("click", () => { draft.push({name:"Nyt leasingselskab", links:{pre:"",insp:"",drop:""}}); cs = draft.length - 1; renderCfg(); list.querySelector(".cfg input")?.select(); });
+document.getElementById("save").addEventListener("click", () => {
+  const bad = draft.flatMap(c => Object.entries(c.links||{}).filter(([k,v]) => v && !okUrl(v)).map(([k]) => `${c.name}: ${TYPES[k].title}`));
+  if(bad.length){ flash("Links skal starte med https:// – tjek " + bad[0]); return; }
+  companies = clone(draft).filter(c => String(c.name).trim());
+  const ok = store(companies); state = {step:1, co:null}; render(); if(ok){ dlg.close(); return; }
+  flash(ok ? "Gemt" : "Vises nu, men kunne ikke gemmes permanent – prøv mindre logofiler");
+});
+document.getElementById("reset").addEventListener("click", () => { draft = clone(DEFAULT); renderCfg(); flash("Standard indlæst – tryk Gem og luk for at bruge den"); });
+function exportText(){ return JSON.stringify({updated:new Date().toISOString(), companies:draft}, null, 2); }
+document.getElementById("dlJson").addEventListener("click", () => {
+  try{ const blob = new Blob([exportText()], {type:"application/json"}), a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = CONFIG_FILE; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 4000); flash("opsaetning.json er hentet – upload den til GitHub"); }
+  catch(e){ flash("Kunne ikke hente filen – brug Kopiér i stedet"); }
+});
+document.getElementById("copyJson").addEventListener("click", async () => { try{ await navigator.clipboard.writeText(json.value); flash("Kopieret"); }catch(e){ json.select(); flash("Markeret – tryk Ctrl/Cmd+C"); } });
+document.getElementById("loadJson").addEventListener("click", () => {
+  try{ const d = normalize(JSON.parse(json.value)); if(!d) throw 0;
+    draft = d.map(c => ({name:String(c.name||""), ...(okLogo(c.logo)?{logo:c.logo}:{}), ...(Array.isArray(c.markets)?{markets:c.markets.filter(m=>m in MARKETS)}:{}), links:{pre:String(c.links?.pre||""), insp:String(c.links?.insp||""), drop:String(c.links?.drop||"")}}));
+    renderCfg(); flash("Indlæst – tryk Gem og luk"); }catch(e){ flash("Teksten kunne ikke læses"); }
+});
+
+applyStatic();
+render();
+loadFile();
+}
+</script>
+</body>
+</html>
